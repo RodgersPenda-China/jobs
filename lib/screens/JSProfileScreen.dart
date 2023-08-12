@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_html_to_pdf/flutter_html_to_pdf.dart';
+// import 'package:flutter_html_to_pdf/flutter_html_to_pdf.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:job_search/controller/api.dart';
@@ -454,7 +454,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text("Education", style: secondaryTextStyle(size: 18)),
-                            IconButton(onPressed: () {Education().launch(context);}, icon: Icon(Icons.add_circle_outline, color: js_primaryColor)),
+                            IconButton(onPressed: () {EducationScreen().launch(context);}, icon: Icon(Icons.add_circle_outline, color: js_primaryColor)),
                           ],
                         ),
                         Divider(height: 0, color: gray.withOpacity(0.2)),

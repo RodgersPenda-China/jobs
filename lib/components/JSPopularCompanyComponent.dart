@@ -94,7 +94,7 @@ class _JsPopularCompanyComponentState extends State<JsPopularCompanyComponent> {
             ),
           ],
         ).onTap(() {
-          JSCompanyProfileScreens(popularCompanyList: data).launch(context);
+         // JSCompanyProfileScreens(popularCompanyList: data).launch(context);
         });
       },
     );

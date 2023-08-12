@@ -1,17 +1,27 @@
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:job_search/components/JSFilteredResultsComponent.dart';
 import 'package:job_search/screens/JSFilteredScreen.dart';
 import 'package:job_search/utils/JSColors.dart';
 import 'package:job_search/utils/JSWidget.dart';
 import 'package:job_search/main.dart';
-
+import 'package:shimmer/shimmer.dart';
+import 'package:http/http.dart' as http;
+import '../components/JSDrawerScreen.dart';
 import '../components/JSJobDetailComponent.dart';
 import '../components/JSRemoveJobComponent.dart';
+import '../controller/home.dart';
 import '../model/JSPopularCompanyModel.dart';
 import '../utils/JSConstant.dart';
 import '../utils/JSDataGenerator.dart';
 import '../widgets/JSFilteredResultWidget.dart';
+import 'JSCompanyProfileScreens.dart';
 import 'JSHomeScreen.dart';
 
 class JSSearchResultScreen extends StatefulWidget {
@@ -31,40 +41,69 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
 
   var daysItems = ['Date Posted', 'Last 1 days', 'Last 2 days', 'Last 3 days', 'Last 4 days'];
 
-  String jobCategoryValue = 'Job Category';
+  String jobCategoryValue = 'Job Type';
 
-  var jobCategoryItems = ['Job Category', 'Web Designer', 'Project Manager', 'Graphics Designer', 'Team Leader'];
+  var jobCategoryItems = ['Job Type', 'Full-Time', 'Part-Time', 'Contract', 'Internship'];
 
-  String salaryValue = 'All Salaries';
+  String salaryValue = 'Remote/Online';
   List<JSPopularCompanyModel> filteredResultsList = getFilteredResultsData();
-
-  var salaryItems = ['All Salaries', '\$40,000', '\$45,000', '\$50,0000', '\$55,0000'];
-
+  bool loading = true;
+  var salaryItems = ['Remote/Online', 'Remote', 'Online'];
+  var jobs = [];
   @override
   void initState() {
     super.initState();
-    init();
+    make_https();
   }
 
-  void init() async {
-    //
+  make_https() async {
+    String url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1";
+    setState(() {
+      loading = true;
+    });
+    print(url);
+    final response = await http.get(Uri.parse(url));
+    setState(() {
+      loading = false;
+      jobs = json.decode(response.body);
+    });
+    print('object');
+    // var jobs = ;
   }
-
-  @override
-  void setState(fn) {
-    if (mounted) super.setState(fn);
+  var fg = {'city':'','category':'','type':'','remote':''};
+  filter(String but,String why) async {
+    setState(() {
+      fg[but] = why;loading = true;
+    });
+    String category='';
+    if(Get.find<HomeController>().filter_category != ''){
+      category = Get.find<HomeController>().filter_category;
+    }
+  String city=fg['city']!,type=fg['type']!,
+      remote=fg['remote']!;
+    String url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&filter=1&city=${city}"
+        "&category=${category}&type=${type}&remote=${remote}";
+    print(url);
+    final response = await http.get(Uri.parse(url));
+     Get.find<HomeController>().loading_from = 0;
+    setState(() {
+      loading = false;
+      jobs = json.decode(response.body);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: scaffoldKey,
+      drawer: JSDrawerScreen(),
       appBar: jsAppBar(context, notifications: true, message: true, bottomSheet: true, backWidget: false, homeAction: false, callBack: () {
 
         setState(() {});
         scaffoldKey.currentState!.openDrawer();
       }),
-      body: Column(
+      body:GetBuilder<HomeController>(builder: (authController){
+      return SingleChildScrollView(child:Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
@@ -76,7 +115,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
               textFieldType: TextFieldType.NAME,
               decoration: jsInputDecoration(
                 hintText: "Search for jobs title, keyword or company",
-                prefixIcon: Icon(Icons.search,color: context.iconColor,size: 20),
+                prefixIcon: Icon(Icons.search,color: Theme.of(context).iconTheme.color,size: 20),
               ),
             ),
           ),
@@ -87,38 +126,36 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Row(
               children: [
-                filteredWidget(widget: Icon(Icons.filter_list, size: 18)).cornerRadiusWithClipRRect(8).onTap(() {
-                  JSFilteredScreen().launch(context);
+                filteredWidget(widget: Icon(Icons.filter_list,color:  Get.find<HomeController>().filter_category == ''?Colors.black:Colors.blue, size: 18)).cornerRadiusWithClipRRect(8).onTap(() {
+                  JSFilteredScreen(filter: fg,).launch(context);
                 }),
                 8.width,
-                filteredWidget(widget: Text("Remote", style: primaryTextStyle(size: 14))),
-                8.width,
-                Container(
-                  decoration: boxDecorationWithRoundedCorners(
-                    borderRadius: BorderRadius.circular(8),
-                    backgroundColor: appStore.isDarkModeOn ? scaffoldDarkColor : js_backGroundColor,
-                  ),
-                  height: 35,
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                  child: DropdownButton(
-                    isExpanded: false,
-                    underline: Container(color: Colors.transparent),
-                    value: daysValue,
-                    icon: Icon(Icons.arrow_drop_down),
-                    items: daysItems.map((String daysItems) {
-                      return DropdownMenuItem(
-                        value: daysItems,
-                        child: Text(daysItems, style: primaryTextStyle(size: 14)),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        daysValue = newValue!;
-                      });
-                    },
-                  ),
-                ),
-                8.width,
+                // Container(
+                //   decoration: boxDecorationWithRoundedCorners(
+                //     borderRadius: BorderRadius.circular(8),
+                //     backgroundColor: appStore.isDarkModeOn ? scaffoldDarkColor : js_backGroundColor,
+                //   ),
+                //   height: 35,
+                //   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                //   child: DropdownButton(
+                //     isExpanded: false,
+                //     underline: Container(color: Colors.transparent),
+                //     value: daysValue,
+                //     icon: Icon(Icons.arrow_drop_down),
+                //     items: daysItems.map((String daysItems) {
+                //       return DropdownMenuItem(
+                //         value: daysItems,
+                //         child: Text(daysItems, style: primaryTextStyle(size: 14)),
+                //       );
+                //     }).toList(),
+                //     onChanged: (String? newValue) {
+                //       setState(() {
+                //         daysValue = newValue!;
+                //       });
+                //     },
+                //   ),
+                // ),
+                // 8.width,
                 Container(
                   decoration: boxDecorationWithRoundedCorners(
                     borderRadius: BorderRadius.circular(8),
@@ -141,6 +178,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                       setState(() {
                         jobCategoryValue = newValue!;
                       });
+                      filter('type', newValue!);
                     },
                   ),
                 ),
@@ -167,11 +205,12 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                       setState(() {
                         salaryValue = newValue!;
                       });
+                      filter('remote', newValue!);
                     },
                   ),
                 ),
                 8.width,
-                filteredWidget(widget: Text("Applications", style: primaryTextStyle(size: 14))),
+                //filteredWidget(widget: Text("Applications", style: primaryTextStyle(size: 14,color: Colors.blue))),
               ],
             ),
           ),
@@ -184,244 +223,741 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
           4.height,
           Row(
             children: [
-              Text("page 1 of 545 jobs", style: secondaryTextStyle()),
+              Text("page 1 of 545 jobs ${Get.find<HomeController>().loading_from}", style: secondaryTextStyle()),
               4.width,
               Icon(Icons.help, color: gray.withOpacity(0.5), size: 18),
             ],
           ).paddingOnly(left: 16),
           16.height,
-      SingleChildScrollView(
-        child: ListView.builder(
-          itemCount: filteredResultsList.length,
-          padding: EdgeInsets.all(8),
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            JSPopularCompanyModel data = filteredResultsList[index];
-            !data.isBlocked!
-                ? Container(
-              decoration: boxDecorationWithRoundedCorners(
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(spreadRadius: 0.6, blurRadius: 1, color: gray.withOpacity(0.5)),
-                ],
-                backgroundColor: context.scaffoldBackgroundColor,
-              ),
-              margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("new", style: primaryTextStyle(size: 14)),
-                      Icon(
-                        data.selectSkill.validate() ? Icons.favorite : Icons.favorite_border,
-                        size: 20,
-                        color: data.selectSkill.validate()
-                            ? js_primaryColor
-                            : appStore.isDarkModeOn
-                            ? white
-                            : black,
-                      ).onTap(() {
-                        data.selectSkill = !data.selectSkill.validate();
-                        setState(() {});
-                      }),
-                    ],
-                  ),
-                  8.height,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(data.companyName.validate(), style: boldTextStyle()),
-                      8.width,
-                      Icon(Icons.block, size: 20).onTap(() {
-                        data.isBlocked = !data.isBlocked.validate();
-                        setState(() {});
-                      }),
-                    ],
-                  ),
-                  4.height,
-                  Text(data.totalReview.validate(), style: primaryTextStyle()),
-                  4.height,
-                  Text("Remote in ${widget.city.validate()}", style: primaryTextStyle()),
-                  8.height,
-                  Container(
-                    decoration: boxDecorationRoundedWithShadow(
-                      8,
-                      backgroundColor: appStore.isDarkModeOn ? scaffoldDarkColor : js_backGroundColor,
-                    ),
-                    padding: EdgeInsets.all(8),
-                    //width: 165,
-                    child: Row(
-                      children: [
-                        Icon(Icons.payment, size: 18),
-                        4.width,
-                        Text(
-                          data.companyImage.validate(),
-                          style: boldTextStyle(),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ).flexible(),
-                      ],
-                    ),
-                  ),
-                  16.height,
-                  Row(
-                    children: [
-                      Icon(Icons.send, size: 18, color: js_primaryColor),
-                      4.width,
-                      Text("Apply with your Indeed CV", style: secondaryTextStyle()),
-                    ],
-                  ),
-                  8.height,
-                  Row(
-                    children: [
-                      Icon(Icons.person_add_alt_1, size: 18, color: Colors.red),
-                      4.width,
-                      Text("Hiring multiple candidates", style: secondaryTextStyle()),
-                    ],
-                  ),
-                  8.height,
-                  Row(
-                    children: [
-                      Icon(Icons.timer, size: 18, color: gray.withOpacity(0.8)),
-                      4.width,
-                      Text("Urgently needed", style: secondaryTextStyle()),
-                    ],
-                  ),
-                  16.height,
-                  Text(data.totalDays.validate(), style: secondaryTextStyle()),
-                ],
-              ),
-            ).onTap(() {
-              // Add BottomSheet Code
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+         loading|| Get.find<HomeController>().filter_loading?Shimmer.fromColors(child: Container(
+
+            margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Loading Jobs, Please Wait", style: primaryTextStyle(size: 14)),
+                    Icon(
+                      1 == 1 ? Icons.favorite : Icons.favorite_border,
+                      size: 20,
+                      color: 1 == 1
+                          ? js_primaryColor
+                          : appStore.isDarkModeOn
+                          ? white
+                          : black,
+                    ).onTap(() {
+                     // filteredResultsList[i].selectSkill = !filteredResultsList[i].selectSkill.validate();
+                      setState(() {});
+                    }),
+                  ],
                 ),
-                builder: (context) {
-                  return FractionallySizedBox(
-                    heightFactor: 0.90,
-                    child: Stack(
-                      children: [
-                        JSJobDetailComponent(filteredResultsList: data),
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 8,
-                          child: AppButton(
-                            onTap: () {
-                              JSHomeScreen().launch(context);
-                            },
-                            width: context.width(),
-                            margin: EdgeInsets.all(16),
-                            color: js_primaryColor,
-                            child: Text("Apply Now", style: boldTextStyle(color: white)),
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                },
-              );
-            })
-                : Container(
-              decoration: boxDecorationWithRoundedCorners(
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(spreadRadius: 0.5, blurRadius: 1, color: gray.withOpacity(0.5)),
-                ],
-                backgroundColor: context.scaffoldBackgroundColor,
-              ),
-              margin: EdgeInsets.all(8),
-              padding: EdgeInsets.all(16),
-              width: context.width(),
-              child: Column(
-                children: [
-                  Row(
+                8.height,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Marketing Manager', style: boldTextStyle()),
+                    8.width,
+                    Icon(Icons.block, size: 20).onTap(() {
+                      //filteredResultsList[i].isBlocked = !filteredResultsList[i].isBlocked.validate();
+                      setState(() {});
+                    }),
+                  ],
+                ),
+                4.height,
+                Text('Ndola', style: primaryTextStyle()),
+                4.height,
+                Text("Remote: Yes", style: primaryTextStyle()),
+                8.height,
+                Container(
+                  decoration: boxDecorationRoundedWithShadow(
+                    8,
+                    backgroundColor: appStore.isDarkModeOn ? scaffoldDarkColor : js_backGroundColor,
+                  ),
+                  padding: EdgeInsets.all(8),
+                  //width: 165,
+                  child: Row(
                     children: [
-                      Icon(Icons.block, size: 20),
-                      8.width,
-                      Text("Job Remove", style: boldTextStyle()),
+                      Icon(Icons.payment, size: 18),
+                      4.width,
+                      Text(
+                        'Nk',
+                        style: boldTextStyle(),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ).flexible(),
                     ],
                   ),
-                  16.height,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      OutlinedButton(
-                        onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-                            ),
-                            builder: (context) {
-                              return FractionallySizedBox(
-                                heightFactor: 0.8,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Align(
-                                      alignment: Alignment.topRight,
-                                      child: IconButton(
-                                        onPressed: () {
-                                          finish(context);
-                                        },
-                                        padding: EdgeInsets.all(16),
-                                        icon: Icon(Icons.close, size: 20),
-                                        alignment: Alignment.topRight,
+                ),
+                16.height,
+                Row(
+                  children: [
+                    Icon(Icons.work, size: 18, color: js_primaryColor),
+                    4.width,
+                    Text("2 Years Working Experience", style: secondaryTextStyle()),
+                  ],
+                ),
+                8.height,
+                Row(
+                  children: [
+                    Icon(Icons.school, size: 18, color: Colors.red),
+                    4.width,
+                    Text("Bachelor Degree", style: secondaryTextStyle()),
+                  ],
+                ),
+                8.height,
+                Row(
+                  children: [
+                    Icon(Icons.watch_later_outlined, size: 18, color: gray.withOpacity(0.8)),
+                    4.width,
+                    Text("Full Time", style: secondaryTextStyle()),
+                  ],
+                ),
+                16.height,
+                Text('Just Now', style: secondaryTextStyle()),
+              ],
+            ),
+          ),
+
+              baseColor: Colors.red, highlightColor: Colors.blue):
+          jobs.length == 0?Center(child:Text("No Jobs Found")):
+          Get.find<HomeController>().loading_from == 0?SingleChildScrollView(
+            child: Column(
+              children: [
+                for(int i = 0; i < jobs.length;i++)
+                  Container(
+                    decoration: boxDecorationWithRoundedCorners(
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(spreadRadius: 0.6, blurRadius: 1, color: gray.withOpacity(0.5)),
+                      ],
+                      backgroundColor: context.scaffoldBackgroundColor,
+                    ),
+                    margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("new", style: primaryTextStyle(size: 14)),
+                            Icon(
+                              1 == 0 ? Icons.favorite : Icons.favorite_border,
+                              size: 20,
+                              color: filteredResultsList[i].selectSkill.validate()
+                                  ? js_primaryColor
+                                  : appStore.isDarkModeOn
+                                  ? white
+                                  : black,
+                            ).onTap(() {
+                              //filteredResultsList[i].selectSkill = !filteredResultsList[i].selectSkill.validate();
+                              setState(() {});
+                            }),
+                          ],
+                        ),
+                        8.height,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(jobs[i]['name'], style: boldTextStyle()),
+                            8.width,
+                            Icon(Icons.block, size: 20).onTap(() {
+                              //filteredResultsList[i].isBlocked = !filteredResultsList[i].isBlocked.validate();
+                              setState(() {});
+                            }),
+                          ],
+                        ),
+                        4.height,
+                        Text(jobs[i]['city'], style: primaryTextStyle()),
+                        4.height,
+                        Text("Remote: ${jobs[i]['remote']}", style: primaryTextStyle()),
+                        8.height,
+                        Container(
+                          decoration: boxDecorationRoundedWithShadow(
+                            8,
+                            backgroundColor: appStore.isDarkModeOn ? scaffoldDarkColor : js_backGroundColor,
+                          ),
+                          padding: EdgeInsets.all(8),
+                          //width: 165,
+                          child: Row(
+                            children: [
+                              Icon(Icons.payment, size: 18),
+                              4.width,
+                              Text(
+                                'ZK'+jobs[i]['salary']+'/Month',
+                                style: boldTextStyle(),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ).flexible(),
+                            ],
+                          ),
+                        ),
+                        16.height,
+                        Row(
+                          children: [
+                            Icon(Icons.work, size: 18, color: js_primaryColor),
+                            4.width,
+                            Text("${jobs[i]['experience']} Years Working Experience", style: secondaryTextStyle()),
+                          ],
+                        ),
+                        8.height,
+                        Row(
+                          children: [
+                            Icon(Icons.school, size: 18, color: Colors.red),
+                            4.width,
+                            Text("${jobs[i]['education']}", style: secondaryTextStyle()),
+                          ],
+                        ),
+                        8.height,
+                        Row(
+                          children: [
+                            Icon(Icons.watch_later_outlined, size: 18, color: gray.withOpacity(0.8)),
+                            4.width,
+                            Text("${jobs[i]['kind']}", style: secondaryTextStyle()),
+                          ],
+                        ),
+                        16.height,
+                        Text('Today', style: secondaryTextStyle()),
+                      ],
+                    ),
+                  ).onTap(() {
+                    // Add BottomSheet Code
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                      ),
+                      builder: (context) {
+                        return
+                         FractionallySizedBox(
+                          heightFactor: 0.90,
+                          child: Stack(
+                            children: [
+                          SingleChildScrollView(
+                          child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.center,
+                                    child: Container(
+                                      width: 30,
+                                      height: 5,
+                                      decoration: boxDecorationWithRoundedCorners(
+                                        borderRadius: BorderRadius.circular(4),
+                                        backgroundColor: appStore.isDarkModeOn ? white : black,
                                       ),
+                                      alignment: Alignment.center,
+                                      margin: EdgeInsets.only(top: 16, left: 24),
                                     ),
-                                    Text("Why did you removw this job?", style: boldTextStyle()).paddingSymmetric(horizontal: 16),
-                                    8.height,
-                                    Text(
-                                      "Selecting what could be improved will make your search results more relevant.",
-                                      style: primaryTextStyle(size: 14),
-                                    ).paddingSymmetric(horizontal: 16),
-                                    JSRemoveJobComponent(),
-                                    Divider(),
-                                    AppButton(
-                                      onTap: () {
+                                  ).expand(),
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: IconButton(
+                                      onPressed: () {
                                         finish(context);
-                                        snackBar(context,title: 'Thanks for a feedback',backgroundColor: context.scaffoldBackgroundColor);
                                       },
-                                      width: context.width(),
-                                      margin: EdgeInsets.all(16),
-                                      color: js_primaryColor,
-                                      child: Text("Send feedback", style: boldTextStyle(color: white)),
-                                    )
+                                      padding: EdgeInsets.all(16),
+                                      icon: Icon(Icons.file_upload_outlined, size: 26),
+                                      alignment: Alignment.topRight,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              32.height,
+                              Text(jobs[i]['name'], style: boldTextStyle(size: 22)),
+                              8.height,
+                              Text(jobs[i]['short_name'], style: primaryTextStyle()),
+                              8.height,
+                              Text('${jobs[i]['city']} . ${jobs[i]['remote'] == 'no'?'Remote':'Online'}', style: primaryTextStyle()),
+                              8.height,
+                              Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: boxDecorationWithRoundedCorners(
+                                    backgroundColor: appStore.isDarkModeOn ? scaffoldDarkColor : js_backGroundColor,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(Icons.work, size: 18, color: js_primaryColor),
+                                          4.width,
+                                          Text("${jobs[i]['experience']} Years Working Experience", style: secondaryTextStyle()),
+                                        ],
+                                      ),
+                                      8.height,
+                                      Row(
+                                        children: [
+                                          Icon(Icons.school, size: 18, color: Colors.red),
+                                          4.width,
+                                          Text(jobs[i]['education'], style: secondaryTextStyle()),
+                                        ],
+                                      ),
+                                      8.height,
+                                      Row(
+                                        children: [
+                                          Icon(Icons.watch_later_outlined, size: 18, color: gray.withOpacity(0.8)),
+                                          4.width,
+                                          Text(jobs[i]['kind'], style: secondaryTextStyle()),
+                                        ],
+                                      ),
+                                    ],
+                                  )),
+                              Card (
+                                margin: EdgeInsets.all(10),
+                                shadowColor: Colors.blueGrey,
+                                elevation: 10,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+
+                                    ListTile(
+                                      leading: GestureDetector(
+                                          onTap: (){},
+                                          child: CachedNetworkImage(
+                                            imageUrl: jobs[i]['image'],
+                                            placeholder: (context, url) => CircularProgressIndicator(),
+                                            errorWidget: (context, url, error) => Icon(Icons.error),
+                                          )
+                                      ),
+                                      subtitle: GestureDetector(
+                                        onTap: (){
+                                          JSCompanyProfileScreens(id: jobs[i]['user_id'],).launch(context);
+                                        },
+                                        child:Text("Other ${jobs[i]['jobs']} Jobs"),
+                                      ),
+                                      title:GestureDetector(
+                                        onTap: (){
+                                          JSCompanyProfileScreens(id: jobs[i]['user_id']).launch(context);
+
+                                        },
+                                        child: Text(
+                                        jobs[i]['short_name'],
+                                        style: TextStyle(fontSize: 20),
+                                      )),
+
+                                      trailing: GestureDetector(
+                                        onTap: (){
+                                          JSCompanyProfileScreens(id: jobs[i]['user_id']).launch(context);
+
+                                        },
+                                        child:Icon (
+                                          Icons.location_on,
+                                          color: Colors.blue,
+                                          size: 23
+                                      )),
+                                    ),
                                   ],
                                 ),
-                              );
-                            },
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(side: BorderSide(width: 1.0, color: js_primaryColor)),
-                        child: Text("Give feedBack", style: boldTextStyle(color: js_primaryColor)),
-                      ),
-                      16.width,
-                      OutlinedButton(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(side: BorderSide(width: 1.0, color: js_primaryColor)),
-                        child: Text("Undo", style: boldTextStyle(color: js_primaryColor)),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-            // return JSFilteredResultWidget(filteredResultsList: data, city: widget.city,index: index);
-          },
-        ).expand(),
-      )
+                              ),
 
+                              24.height,
+                              Text("Job details", style: boldTextStyle(size: 20)),
+                              16.height,
+                              Text("Salary", style: boldTextStyle()),
+                              4.height,
+                              Text('ZK${jobs[i]['salary']}/Month', style: primaryTextStyle()),
+                              16.height,
+                              Text("Job type", style: boldTextStyle()),
+                              4.height,
+                              jsGetPrimaryTitle(jobs[i]['kind']),
+                              4.height,
+                              jsGetPrimaryTitle(jobs[i]['category']),
+                              4.height,
+                              jsGetPrimaryTitle(jobs[i]['remote'] == 'no'?'Remote':'Online'),
+                              4.height,
+                              Divider(),
+                              16.height,
+                              Text("Full Job Description", style: boldTextStyle(size: 20)),
+                              16.height,
+                              HtmlWidget(
+                                // the first parameter (`html`) is required
+                                jobs[i]['description'],
+
+                                // all other parameters are optional, a few notable params:
+
+                                // specify custom styling for an element
+                                // see supported inline styling below
+                                customStylesBuilder: (element) {
+                                  //if (element.classes.contains('foo')) {
+                                    return {'fontSize': '60'};
+                                 // }
+
+                                  return null;
+                                },
+
+
+                                // these callbacks are called when a complicated element is loading
+                                // or failed to render allowing the app to render progress indicator
+                                // and fallback widget
+                                onErrorBuilder: (context, element, error) => Text('$element error: $error'),
+                                onLoadingBuilder: (context, element, loadingProgress) => CircularProgressIndicator(),
+
+                                // this callback will be triggered when user taps a link
+                               // onTapUrl: (url) => print('tapped $url'),
+
+                                // select the render mode for HTML body
+                                // by default, a simple `Column` is rendered
+                                // consider using `ListView` or `SliverList` for better performance
+                                renderMode: RenderMode.column,
+
+                                // set the default styling for text
+                                textStyle: TextStyle(fontSize: 15),
+
+                                // turn on `webView` if you need IFRAME support (it's disabled by default)
+                                //webView: true,
+                              ),
+                            ],
+                          ).paddingOnly(left: 16,right: 16,bottom: 80),
+                         ),
+                              Positioned(
+                                left: 0,
+                                right: 0,
+                                bottom: 8,
+                                child: AppButton(
+                                  onTap: () {
+                                    JSHomeScreen().launch(context);
+                                  },
+                                  width: MediaQuery.of(context).size.width,
+                                  margin: EdgeInsets.all(16),
+                                  color: js_primaryColor,
+                                  child: Text("Apply Now", style: boldTextStyle(color: white)),
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  })
+              ],
+            ),
+          ):
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                for(int i = 0; i < Get.find<HomeController>().filter_array.length;i++)
+                  Container(
+                    decoration: boxDecorationWithRoundedCorners(
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(spreadRadius: 0.6, blurRadius: 1, color: gray.withOpacity(0.5)),
+                      ],
+                      backgroundColor: context.scaffoldBackgroundColor,
+                    ),
+                    margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("new", style: primaryTextStyle(size: 14)),
+                            Icon(
+                              1 == 0 ? Icons.favorite : Icons.favorite_border,
+                              size: 20,
+                              color: filteredResultsList[i].selectSkill.validate()
+                                  ? js_primaryColor
+                                  : appStore.isDarkModeOn
+                                  ? white
+                                  : black,
+                            ).onTap(() {
+                              //filteredResultsList[i].selectSkill = !filteredResultsList[i].selectSkill.validate();
+                              setState(() {});
+                            }),
+                          ],
+                        ),
+                        8.height,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text( Get.find<HomeController>().filter_array[i]['name'], style: boldTextStyle()),
+                            8.width,
+                            Icon(Icons.block, size: 20).onTap(() {
+                              //filteredResultsList[i].isBlocked = !filteredResultsList[i].isBlocked.validate();
+                              setState(() {});
+                            }),
+                          ],
+                        ),
+                        4.height,
+                        Text( Get.find<HomeController>().filter_array[i]['city'], style: primaryTextStyle()),
+                        4.height,
+                        Text("Remote: ${ Get.find<HomeController>().filter_array[i]['remote']}", style: primaryTextStyle()),
+                        8.height,
+                        Container(
+                          decoration: boxDecorationRoundedWithShadow(
+                            8,
+                            backgroundColor: appStore.isDarkModeOn ? scaffoldDarkColor : js_backGroundColor,
+                          ),
+                          padding: EdgeInsets.all(8),
+                          //width: 165,
+                          child: Row(
+                            children: [
+                              Icon(Icons.payment, size: 18),
+                              4.width,
+                              Text(
+                                'ZK'+ Get.find<HomeController>().filter_array[i]['salary']+'/Month',
+                                style: boldTextStyle(),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ).flexible(),
+                            ],
+                          ),
+                        ),
+                        16.height,
+                        Row(
+                          children: [
+                            Icon(Icons.work, size: 18, color: js_primaryColor),
+                            4.width,
+                            Text("${ Get.find<HomeController>().filter_array[i]['experience']} Years Working Experience", style: secondaryTextStyle()),
+                          ],
+                        ),
+                        8.height,
+                        Row(
+                          children: [
+                            Icon(Icons.school, size: 18, color: Colors.red),
+                            4.width,
+                            Text("${ Get.find<HomeController>().filter_array[i]['education']}", style: secondaryTextStyle()),
+                          ],
+                        ),
+                        8.height,
+                        Row(
+                          children: [
+                            Icon(Icons.watch_later_outlined, size: 18, color: gray.withOpacity(0.8)),
+                            4.width,
+                            Text("${ Get.find<HomeController>().filter_array[i]['kind']}", style: secondaryTextStyle()),
+                          ],
+                        ),
+                        16.height,
+                        Text('Today', style: secondaryTextStyle()),
+                      ],
+                    ),
+                  ).onTap(() {
+                    // Add BottomSheet Code
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                      ),
+                      builder: (context) {
+                        return
+                          FractionallySizedBox(
+                            heightFactor: 0.90,
+                            child: Stack(
+                              children: [
+                                SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Align(
+                                            alignment: Alignment.center,
+                                            child: Container(
+                                              width: 30,
+                                              height: 5,
+                                              decoration: boxDecorationWithRoundedCorners(
+                                                borderRadius: BorderRadius.circular(4),
+                                                backgroundColor: appStore.isDarkModeOn ? white : black,
+                                              ),
+                                              alignment: Alignment.center,
+                                              margin: EdgeInsets.only(top: 16, left: 24),
+                                            ),
+                                          ).expand(),
+                                          Align(
+                                            alignment: Alignment.topRight,
+                                            child: IconButton(
+                                              onPressed: () {
+                                                finish(context);
+                                              },
+                                              padding: EdgeInsets.all(16),
+                                              icon: Icon(Icons.file_upload_outlined, size: 26),
+                                              alignment: Alignment.topRight,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      32.height,
+                                      Text( Get.find<HomeController>().filter_array[i]['name'], style: boldTextStyle(size: 22)),
+                                      8.height,
+                                      Text( Get.find<HomeController>().filter_array[i]['short_name'], style: primaryTextStyle()),
+                                      8.height,
+                                      Text('${ Get.find<HomeController>().filter_array[i]['city']} . ${jobs[i]['remote'] == 'no'?'Remote':'Online'}', style: primaryTextStyle()),
+                                      8.height,
+                                      Container(
+                                          padding: EdgeInsets.all(8),
+                                          decoration: boxDecorationWithRoundedCorners(
+                                            backgroundColor: appStore.isDarkModeOn ? scaffoldDarkColor : js_backGroundColor,
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.work, size: 18, color: js_primaryColor),
+                                                  4.width,
+                                                  Text("${ Get.find<HomeController>().filter_array[i]['experience']} Years Working Experience", style: secondaryTextStyle()),
+                                                ],
+                                              ),
+                                              8.height,
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.school, size: 18, color: Colors.red),
+                                                  4.width,
+                                                  Text( Get.find<HomeController>().filter_array[i]['education'], style: secondaryTextStyle()),
+                                                ],
+                                              ),
+                                              8.height,
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.watch_later_outlined, size: 18, color: gray.withOpacity(0.8)),
+                                                  4.width,
+                                                  Text( Get.find<HomeController>().filter_array[i]['kind'], style: secondaryTextStyle()),
+                                                ],
+                                              ),
+                                            ],
+                                          )),
+                                      Card (
+                                        margin: EdgeInsets.all(10),
+                                        shadowColor: Colors.blueGrey,
+                                        elevation: 10,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+
+                                            ListTile(
+                                              leading: GestureDetector(
+                                                  onTap: (){},
+                                                  child: CachedNetworkImage(
+                                                    imageUrl:  Get.find<HomeController>().filter_array[i]['image'],
+                                                    placeholder: (context, url) => CircularProgressIndicator(),
+                                                    errorWidget: (context, url, error) => Icon(Icons.error),
+                                                  )
+                                              ),
+                                              subtitle: GestureDetector(
+                                                onTap: (){
+                                                  JSCompanyProfileScreens(id:  Get.find<HomeController>().filter_array[i]['user_id'],).launch(context);
+                                                },
+                                                child:Text("Other ${ Get.find<HomeController>().filter_array[i]['jobs']} Jobs"),
+                                              ),
+                                              title:GestureDetector(
+                                                  onTap: (){
+                                                    JSCompanyProfileScreens(id:  Get.find<HomeController>().filter_array[i]['user_id']).launch(context);
+
+                                                  },
+                                                  child: Text(
+                                                    Get.find<HomeController>().filter_array[i]['short_name'],
+                                                    style: TextStyle(fontSize: 20),
+                                                  )),
+
+                                              trailing: GestureDetector(
+                                                  onTap: (){
+                                                    JSCompanyProfileScreens(id:  Get.find<HomeController>().filter_array[i]['user_id']).launch(context);
+
+                                                  },
+                                                  child:Icon (
+                                                      Icons.location_on,
+                                                      color: Colors.blue,
+                                                      size: 23
+                                                  )),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      24.height,
+                                      Text("Job details", style: boldTextStyle(size: 20)),
+                                      16.height,
+                                      Text("Salary", style: boldTextStyle()),
+                                      4.height,
+                                      Text('ZK${ Get.find<HomeController>().filter_array[i]['salary']}/Month', style: primaryTextStyle()),
+                                      16.height,
+                                      Text("Job type", style: boldTextStyle()),
+                                      4.height,
+                                      jsGetPrimaryTitle( Get.find<HomeController>().filter_array[i]['kind']),
+                                      4.height,
+                                      jsGetPrimaryTitle( Get.find<HomeController>().filter_array[i]['category']),
+                                      4.height,
+                                      jsGetPrimaryTitle( Get.find<HomeController>().filter_array[i]['remote'] == 'no'?'Remote':'Online'),
+                                      4.height,
+                                      Divider(),
+                                      16.height,
+                                      Text("Full Job Description", style: boldTextStyle(size: 20)),
+                                      16.height,
+                                      HtmlWidget(
+                                        // the first parameter (`html`) is required
+                                        Get.find<HomeController>().filter_array[i]['description'],
+
+                                        // all other parameters are optional, a few notable params:
+
+                                        // specify custom styling for an element
+                                        // see supported inline styling below
+                                        customStylesBuilder: (element) {
+                                          //if (element.classes.contains('foo')) {
+                                          return {'fontSize': '60'};
+                                          // }
+
+                                          return null;
+                                        },
+
+
+                                        // these callbacks are called when a complicated element is loading
+                                        // or failed to render allowing the app to render progress indicator
+                                        // and fallback widget
+                                        onErrorBuilder: (context, element, error) => Text('$element error: $error'),
+                                        onLoadingBuilder: (context, element, loadingProgress) => CircularProgressIndicator(),
+
+                                        // this callback will be triggered when user taps a link
+                                        // onTapUrl: (url) => print('tapped $url'),
+
+                                        // select the render mode for HTML body
+                                        // by default, a simple `Column` is rendered
+                                        // consider using `ListView` or `SliverList` for better performance
+                                        renderMode: RenderMode.column,
+
+                                        // set the default styling for text
+                                        textStyle: TextStyle(fontSize: 15),
+
+                                        // turn on `webView` if you need IFRAME support (it's disabled by default)
+                                        //webView: true,
+                                      ),
+                                    ],
+                                  ).paddingOnly(left: 16,right: 16,bottom: 80),
+                                ),
+                                Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 8,
+                                  child: AppButton(
+                                    onTap: () {
+                                      JSHomeScreen().launch(context);
+                                    },
+                                    width: MediaQuery.of(context).size.width,
+                                    margin: EdgeInsets.all(16),
+                                    color: js_primaryColor,
+                                    child: Text("Apply Now", style: boldTextStyle(color: white)),
+                                  ),
+                                )
+                              ],
+                            ),
+                          );
+                      },
+                    );
+                  })
+              ],
+            ),
+          )
         ],
-      ),
+      ));})
     );
+
   }
 }

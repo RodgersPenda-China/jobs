@@ -7,6 +7,8 @@ import 'package:job_search/utils/JSColors.dart';
 import 'package:job_search/utils/JSDataGenerator.dart';
 import 'package:job_search/main.dart';
 
+import '../screens/candidate.dart';
+
 class JSDrawerScreen extends StatefulWidget {
   const JSDrawerScreen({Key? key}) : super(key: key);
 
@@ -22,6 +24,7 @@ class _JSDrawerScreenState extends State<JSDrawerScreen> {
   void initState() {
     super.initState();
     init();
+
   }
 
   void init() async {
@@ -120,7 +123,7 @@ class _JSDrawerScreenState extends State<JSDrawerScreen> {
                         ],
                       ).onTap(() {
                         if (drawerIndex == 3 || drawerIndex == 6) {
-                          toast("Coming Soon...");
+                          CandidatesScreen().launch(context);
                         } else if (drawerIndex == 7) {
                           showConfirmDialog(context, 'Do you want to logout from the app?', onAccept: () {
                             JSHomeScreen().launch(context);

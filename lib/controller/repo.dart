@@ -15,6 +15,12 @@ class homeRepo {
   get_categories() async{
     return await apiClient.getData('get_categories=1');
   }
+  get_jobs() async{
+    return await apiClient.getData('get_jobs=1');
+  }
+  filter(String cat,city,type,remote) async{
+    return await apiClient.getData('get_jobs=1&filter=1&city=${city}&category=${cat}&type=${type}&remote=${remote}');
+  }
   get_cv(String token) async{
     return await apiClient.getData('get_cv=1&token=${token}');
   }

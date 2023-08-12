@@ -96,4 +96,23 @@ class HomeController extends GetxController implements GetxService {
     cv_loading = false;
     update();
   }
+  var jobs = []; bool jobs_loading = false;
+  get_jobs() async {
+    jobs_loading = true; update();
+    Response response = await HomeRepo.get_jobs();
+    jobs = response.body;
+    jobs_loading = false;
+    update();
+  }
+  int loading_from = 0; bool filter_loading = false; var filter_array=[];
+  String filter_category = ''; var category_array = {};
+  filter(String cat,city,type,remote) async{
+    filter_loading = true;  update();
+    Response response = await HomeRepo.filter(cat,city,type,remote);
+    filter_array = response.body;
+    loading_from = 1;
+    filter_category = cat;
+    filter_loading = false;
+    update();
+  }
 }

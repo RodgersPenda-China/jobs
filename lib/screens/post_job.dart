@@ -17,14 +17,14 @@ import 'package:job_search/main.dart';
 import '../controller/home.dart';
 
 
-class EducationScreen extends StatefulWidget {
-  EducationScreen({Key? key}) : super(key: key);
+class PostJob extends StatefulWidget {
+  PostJob({Key? key}) : super(key: key);
 
   @override
   _JSCompleteProfileThreeScreenState createState() => _JSCompleteProfileThreeScreenState();
 }
 
-class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
+class _JSCompleteProfileThreeScreenState extends State<PostJob> {
   String text = "Initial Text";
 
   final GlobalKey<ScaffoldState> _scaffoldkey =  GlobalKey<ScaffoldState>();
@@ -39,17 +39,15 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
   FocusNode cityFocus = FocusNode();
   FocusNode descriptionFocus = FocusNode();
 
-  String fromMonthValue = 'Online';
-  var fromMonthItems = ['On Campus', 'Online'];
+  String fromMonthValue = 'Full-Time';
 
-  String toMonthValue = 'Associate Degree';
-  var toMonthItems = ['Associate Degree', 'Bachelor Degree','Masters Degree','Phd Degree'];
+  var fromMonthItems = ['Full-Time', 'Part-Time', 'Contract', 'Internship'];
   final HtmlEditorController controller = HtmlEditorController();
 
   // value set to false
   bool _value = false; String from = '', to = ''; bool work_here = false;
-  String title = '',company = '',position = '',category = '',work_type = 'On Campus',city = '',description = '';
-  String from_format = ''; String to_format ='';String degree_type = 'Associate Degree';
+  String title = '',company = '',position = '',category = '',work_type = 'Full-Time',city = '',description = '';
+  String from_format = ''; String to_format ='';
   @override
   void initState() {
     super.initState();
@@ -83,8 +81,8 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
           if(from == ''){error = true; message = 'From Date Is Empty';}
           if(to == '' && work_here == false){error = true; message = 'To Date Is Empty';}
           if(title == ''){error = true; message = 'Title Is Empty';}
-          if(company == ''){error = true; message = 'Degree Type Is Empty';}
-          if(degree_type == ''){error = true; message = 'Position Is Empty';}
+          if(company == ''){error = true; message = 'Compnay Is Empty';}
+          if(position == ''){error = true; message = 'Position Is Empty';}
           if(category == ''){error = true; message = 'Category Is Empty';}
           if(work_type == ''){error = true; message = 'Work Type Is Empty';}
           if(description == ''){error = true; message = 'Description Is Empty';}
@@ -136,8 +134,8 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
             } else {
               //now we make a request
               setState(() {loading  = true;});
-              await Get.find<HomeController>().education(title, company,degree_type,category,work_type,city,from,to,description);
-              var results = Get.find<HomeController>().education_response;
+              await Get.find<HomeController>().work_experience(title, company,position,category,work_type,city,from,to,description);
+              var results = Get.find<HomeController>().experience_reponse;
 
               if(results['error'] == 0){
                 final snackBar = SnackBar(
@@ -194,11 +192,11 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Education", style: boldTextStyle(size: 20)),
+                    Text("Work experience", style: boldTextStyle(size: 20)),
                     16.height,
                     Text("* Required fields", style: secondaryTextStyle(size: 16)),
                     16.height,
-                    Text("Title *", style: boldTextStyle()),
+                    Text("Job Title *", style: boldTextStyle()),
                     Container(
                       height: textFieldHeight,
                       alignment: Alignment.center,
@@ -214,7 +212,7 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
                       ),
                     ),
                     16.height,
-                    Text("School*", style: boldTextStyle()),
+                    Text("Company*", style: boldTextStyle()),
                     Container(
                       height: textFieldHeight,
                       alignment: Alignment.center,
@@ -229,28 +227,19 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
                         decoration: jsInputDecoration(),
                       ),
                     ),
-                    Text("Degree Type*", style: boldTextStyle()),
+                    Text("Position*", style: boldTextStyle()),
                     Container(
                       height: textFieldHeight,
                       alignment: Alignment.center,
                       margin: EdgeInsets.only(top: 16),
                       decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
-                      child: DropdownButton(
-                        isExpanded: true,
-                        underline: Container(color: Colors.transparent),
-                        value: degree_type,
-                        icon: Icon(Icons.keyboard_arrow_down),
-                        items: toMonthItems.map((String toMonthItems) {
-                          return DropdownMenuItem(
-                            value: toMonthItems,
-                            child: Text(toMonthItems),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            degree_type = newValue!;
-                          });
-                        },
+                      child: AppTextField(
+                        onChanged: (v){position = v;},
+                        // controller: companyController,
+                        // focus: companyFocus,
+                        nextFocus: cityFocus,
+                        textFieldType: TextFieldType.NAME,
+                        decoration: jsInputDecoration(),
                       ),
                     ),
                     Text("Category*", style: boldTextStyle()),
@@ -272,7 +261,7 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
                         },
                       ),
                     ),
-                    Text("School Type*", style: boldTextStyle()),
+                    Text("work_type*", style: boldTextStyle()),
                     Container(
                       height: textFieldHeight,
                       alignment: Alignment.center,
@@ -334,7 +323,7 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
                     Text("Time period", style: boldTextStyle()),
                     CheckboxListTile(
                       contentPadding: EdgeInsets.all(0),
-                      title: Text("I currently go to school here", style: primaryTextStyle()),
+                      title: Text("I currently work here", style: primaryTextStyle()),
                       value: _value,
                       activeColor: js_primaryColor,
                       dense: true,
@@ -394,7 +383,8 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
                     Text("Description (Recommended)", style: boldTextStyle()),
                     8.height,
                     Text(
-                        "Describe what the course is all about",
+                        "Describe your job tasks about your achievement, and show  off what skill set your apart. This information will help prove insight into your background and showcase "
+                            "compatibility as potential employee.",
                         style: secondaryTextStyle()),
                     16.height,
                     HtmlEditor(

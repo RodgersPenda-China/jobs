@@ -40,14 +40,17 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
   FocusNode descriptionFocus = FocusNode();
 
   String fromMonthValue = 'Full-Time';
-
   var fromMonthItems = ['Full-Time', 'Part-Time', 'Contract', 'Internship'];
-  final HtmlEditorController controller = HtmlEditorController();
 
+ // String remoteValue = 'Yes';
+  var remoteList = ['Yes', 'No'];
+  final HtmlEditorController controller = HtmlEditorController();
+  // String toMonthValue = 'Associate Degree';
+  var educationList = ['Associate Degree', 'Bachelor Degree','Masters Degree','Phd Degree'];
   // value set to false
   bool _value = false; String from = '', to = ''; bool work_here = false;
-  String title = '',company = '',position = '',category = '',work_type = 'Full-Time',city = '',description = '';
-  String from_format = ''; String to_format ='';
+  String title = '',salary = '',experience = '',category = '',work_type = 'Full-Time', city = '',description = '';
+  String education = 'Associate Degree'; String to_format ='',remoteValue = 'Yes';
   @override
   void initState() {
     super.initState();
@@ -78,13 +81,13 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
         onTap: () async {
           bool error = false; String message = '';
 
-          if(from == ''){error = true; message = 'From Date Is Empty';}
-          if(to == '' && work_here == false){error = true; message = 'To Date Is Empty';}
+         // if(from == ''){error = true; message = 'From Date Is Empty';}
+          //if(to == '' && work_here == false){error = true; message = 'To Date Is Empty';}
           if(title == ''){error = true; message = 'Title Is Empty';}
-          if(company == ''){error = true; message = 'Compnay Is Empty';}
-          if(position == ''){error = true; message = 'Position Is Empty';}
+          if(salary == ''){error = true; message = 'Salary Is Empty';}
+          if(education == ''){error = true; message = 'Educatin Is Empty';}
           if(category == ''){error = true; message = 'Category Is Empty';}
-          if(work_type == ''){error = true; message = 'Work Type Is Empty';}
+          if(experience == ''){error = true; message = 'Work Experience Is Empty';}
           if(description == ''){error = true; message = 'Description Is Empty';}
           if(city == ''){error = true; message = 'City Is Empty';}
           //expose error and return if possible then compare dates
@@ -103,20 +106,6 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
               ..hideCurrentSnackBar()
               ..showSnackBar(snackBar);
           } else {
-            if(work_here ==  false) {
-              DateTime dt1 = DateTime.parse(from_format);
-              DateTime dt2 = DateTime.parse(to_format);
-
-              if (dt1.compareTo(dt2) == 0) {
-                error = true;
-                message = 'From Date and To Date Are The Same';
-              }
-              if (dt1.compareTo(dt2) > 0) {
-                print("DT1 is after DT2");
-                error = true;
-                message = 'From Date is After To Date';
-              }
-            }
             if(error == true){
               final snackBar = SnackBar(
                 elevation: 0,
@@ -134,7 +123,7 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
             } else {
               //now we make a request
               setState(() {loading  = true;});
-              await Get.find<HomeController>().work_experience(title, company,position,category,work_type,city,from,to,description);
+               await Get.find<HomeController>().save_jobs(title, salary,experience,education,category,work_type,remoteValue,city,description);
               var results = Get.find<HomeController>().experience_reponse;
 
               if(results['error'] == 0){
@@ -153,7 +142,7 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
                   ..showSnackBar(snackBar);
               } else {
 
-                if(results['error'] == 0){
+                if(results['error'] == 1){
                   final snackBar = SnackBar(
                     elevation: 0,
                     behavior: SnackBarBehavior.floating,
@@ -212,14 +201,14 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
                       ),
                     ),
                     16.height,
-                    Text("Company*", style: boldTextStyle()),
+                    Text("Salary (Per Month)*", style: boldTextStyle()),
                     Container(
                       height: textFieldHeight,
                       alignment: Alignment.center,
                       margin: EdgeInsets.only(top: 16),
                       decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
                       child: AppTextField(
-                        onChanged: (v){company = v;},
+                        onChanged: (v){salary = v;},
                         controller: companyController,
                         focus: companyFocus,
                         nextFocus: cityFocus,
@@ -227,19 +216,52 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
                         decoration: jsInputDecoration(),
                       ),
                     ),
-                    Text("Position*", style: boldTextStyle()),
+                    Text("Work Experience (In Years)*", style: boldTextStyle()),
                     Container(
                       height: textFieldHeight,
                       alignment: Alignment.center,
                       margin: EdgeInsets.only(top: 16),
                       decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
                       child: AppTextField(
-                        onChanged: (v){position = v;},
+                        keyboardType: TextInputType.number,
+                        onChanged: (v){experience = v;},
                         // controller: companyController,
                         // focus: companyFocus,
                         nextFocus: cityFocus,
                         textFieldType: TextFieldType.NAME,
                         decoration: jsInputDecoration(),
+                      ),
+                    ),
+                    24.height,
+                    Text("Education*", style: boldTextStyle()),
+                    Container(
+                      height: textFieldHeight,
+                      alignment: Alignment.center,
+                      margin: EdgeInsets.only(top: 16),
+                      decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
+                      child: Container(
+                        // height: 80,
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        alignment: Alignment.center,
+                        margin: EdgeInsets.only(top: 16),
+                        decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
+                        child: DropdownButton(
+                          isExpanded: true,
+                          underline: Container(color: Colors.transparent),
+                          value: education,
+                          icon: Icon(Icons.keyboard_arrow_down),
+                          items: educationList.map((String education) {
+                            return DropdownMenuItem(
+                              value: education,
+                              child: Text(education),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              education = newValue!;
+                            });
+                          },
+                        ),
                       ),
                     ),
                     Text("Category*", style: boldTextStyle()),
@@ -292,6 +314,38 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
                         ),
                       ),
                     ),
+                    24.height,
+                    Text("Remote*", style: boldTextStyle()),
+                    Container(
+                      height: textFieldHeight,
+                      alignment: Alignment.center,
+                      margin: EdgeInsets.only(top: 16),
+                      decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
+                      child: Container(
+                        // height: 80,
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        alignment: Alignment.center,
+                        margin: EdgeInsets.only(top: 16),
+                        decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
+                        child: DropdownButton(
+                          isExpanded: true,
+                          underline: Container(color: Colors.transparent),
+                          value: remoteValue,
+                          icon: Icon(Icons.keyboard_arrow_down),
+                          items: remoteList.map((String remoteValue) {
+                            return DropdownMenuItem(
+                              value: remoteValue,
+                              child: Text(remoteValue),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              remoteValue = newValue!;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
                     16.height,
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,66 +373,8 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
                         decoration: jsInputDecoration(),
                       ),
                     ),
-                    16.height,
-                    Text("Time period", style: boldTextStyle()),
-                    CheckboxListTile(
-                      contentPadding: EdgeInsets.all(0),
-                      title: Text("I currently work here", style: primaryTextStyle()),
-                      value: _value,
-                      activeColor: js_primaryColor,
-                      dense: true,
-                      onChanged: (bool? newValue) {
-                        print(newValue);
-                        setState(() {
-                          _value = newValue!; work_here = newValue;
-                        });
-                      },
-                      controlAffinity: ListTileControlAffinity.leading,
-                    ),
-                    16.height,
-                    Text("From*", style: boldTextStyle()),
-                    8.height,
-                    Center(child:
-                    GestureDetector(
-                      onTap: () async {
-                        DateTime? pickedDate =  await  showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(1970), lastDate: DateTime.now());
-                        if(pickedDate != null ){
-                          print(pickedDate);  //get the picked date in the format => 2022-07-04 00:00:00.000
-                          String formattedDate = DateFormat('dd-MM-yyyy').format(pickedDate); // format date in required form here we use yyyy-MM-dd that means time is removed
-                          String new_format = DateFormat('yyyy-MM-dd').format(pickedDate); //formatted date output using intl package =>  2022-07-04
-                          //You can format date as per your need
-                          setState(() {from  = formattedDate;from_format = new_format;});
-                          //print(day);
-                        }else{
-                          print("Date is not selected");
-                        }
-                      },
-                      child: Text(from == ''?"Select Date":from, style: boldTextStyle(color: Colors.blue)),),),
-                    16.height,
-                    work_here?Container():
-                    Column(
-                      // mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children:[
-                          Text("To*", style: boldTextStyle()),
-                          Center(child:
-                          GestureDetector(
-                            onTap: () async {
-                              DateTime? pickedDate =  await  showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(1970), lastDate: DateTime.now());
-                              if(pickedDate != null ){
-                                print(pickedDate);  //get the picked date in the format => 2022-07-04 00:00:00.000
-                                String formattedDate = DateFormat('dd-MM-yyyy').format(pickedDate); // format date in required form here we use yyyy-MM-dd that means time is removed
-                                print(formattedDate);
-                                String new_format = DateFormat('yyyy-MM-dd').format(pickedDate); //formatted date output using intl package =>  2022-07-04
-                                //You can format date as per your need
-                                setState(() {to  = formattedDate;to_format = new_format;});
-                                //print(day);
-                              }else{
-                                print("Date is not selected");
-                              }
-                            },
-                            child: Text(to == ''?"Select Date":to, style: boldTextStyle(color: Colors.blue)),),),
-                        ]),
+                   // 16.height,
+
                     16.height,
                     Text("Description (Recommended)", style: boldTextStyle()),
                     8.height,

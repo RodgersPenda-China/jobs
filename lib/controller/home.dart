@@ -29,6 +29,7 @@ class HomeController extends GetxController implements GetxService {
     update();
     return google_list;
   }
+  bool apply_loading = false;
   var personal_reponse  = {}; //var cvs = [];
   personal_details(String f_name,String l_name,String gender,String phone,location,place_id,List<MultipartBody> image) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -68,6 +69,14 @@ class HomeController extends GetxController implements GetxService {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     Response response = await HomeRepo.work_experience(token!, title, company, position, category, work_type, city, from, to, description);
+    experience_reponse = response.body;
+    update();
+  }
+  save_jobs(String title, salary,experience,education,category,work_type,remoteValue,city,description) async{
+    experience_reponse = {};
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    Response response = await HomeRepo.jobs(token!, title, salary,experience,education,category,work_type,remoteValue,city,description);
     experience_reponse = response.body;
     update();
   }

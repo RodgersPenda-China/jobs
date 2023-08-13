@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:job_search/screens/JSSplashScreen.dart';
 import 'package:job_search/store/AppStore.dart';
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         darkTheme: AppThemeData.darkTheme,
         themeMode: appStore.isDarkModeOn ? ThemeMode.dark : ThemeMode.light,
         home: JSSplashScreen(),
+        builder: EasyLoading.init(),
         // supportedLocales: LanguageDataModel.languageLocales(),
 /*        localizationsDelegates: [
           AppLocalizations(),

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -17,6 +18,7 @@ import '../components/JSDrawerScreen.dart';
 import '../components/JSJobDetailComponent.dart';
 import '../components/JSRemoveJobComponent.dart';
 import '../controller/home.dart';
+import 'package:badges/badges.dart' as badges;
 import '../model/JSPopularCompanyModel.dart';
 import '../utils/JSConstant.dart';
 import '../utils/JSDataGenerator.dart';
@@ -57,7 +59,14 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
   }
 
   make_https() async {
-    String url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1";
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String url = '';
+    if(token != null && token != '') {
+      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&token=${token}";
+    } else {
+      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1";
+    }
     setState(() {
       loading = true;
     });
@@ -81,8 +90,16 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
     }
   String city=fg['city']!,type=fg['type']!,
       remote=fg['remote']!;
-    String url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&filter=1&city=${city}"
-        "&category=${category}&type=${type}&remote=${remote}";
+    String url = '';
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if(token != null && token != '') {
+      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&filter=1&city=${city}"
+          "&category=${category}&type=${type}&remote=${remote}&token=${token}";
+    } else {
+      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&filter=1&city=${city}"
+          "&category=${category}&type=${type}&remote=${remote}";
+    }
     print(url);
     final response = await http.get(Uri.parse(url));
      Get.find<HomeController>().loading_from = 0;
@@ -91,6 +108,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
       jobs = json.decode(response.body);
     });
   }
+  bool apply_loading = false; var cv_body = []; bool job_apply = false;
 
   @override
   Widget build(BuildContext context) {
@@ -343,11 +361,12 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("new", style: primaryTextStyle(size: 14)),
+                            Text("${jobs[i]['applied'] == 'yes'?'Applied!':'New'}", style: primaryTextStyle(size: 14,color: Colors.red)),
+
                             Icon(
                               1 == 0 ? Icons.favorite : Icons.favorite_border,
                               size: 20,
-                              color: filteredResultsList[i].selectSkill.validate()
+                              color: 1 == 0
                                   ? js_primaryColor
                                   : appStore.isDarkModeOn
                                   ? white
@@ -621,13 +640,113 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                 right: 0,
                                 bottom: 8,
                                 child: AppButton(
-                                  onTap: () {
-                                    JSHomeScreen().launch(context);
+                                  onTap: () async {
+                                    //applying loading
+                                    if(jobs[i]['applied'] == 'yes'){return;}
+                                    final SharedPreferences prefs = await SharedPreferences.getInstance();
+                                    String? token = prefs.getString('token');
+                                    String url = "https://x.smartbuybuy.com/job/index.php?get_cvs=1&token=${token}";
+                                    setState(() {
+                                      apply_loading = true;
+                                    });
+                                    EasyLoading.show(status: 'loading...');
+
+                                    print(url);print(apply_loading);
+                                    final response = await http.get(Uri.parse(url));
+                                    Get.find<HomeController>().user_loading = true;
+                                    setState(() {
+                                      apply_loading = false;
+                                      cv_body = jsonDecode(response.body);
+                                    });
+                                    EasyLoading.dismiss();
+                                    showModalBottomSheet(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                                        ),
+                                        builder: (context) {
+                                          return // Column(
+                                            //children: [
+                                            Card (
+                                              margin: EdgeInsets.all(10),
+                                              shadowColor: Colors.blueGrey,
+                                              elevation: 10,
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  Text('Select Cv',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold)),
+                                                  for(int index = 0; index < cv_body.length;index++)
+                                                    ListTile(
+                                                      leading:
+                                                      cv_body[index]['name'].split(".").last == 'png'|| cv_body[index]['name'].split(".").last == 'jpg'
+                                                          || cv_body[index]['name'].split(".").last == 'jpeg'?
+                                                      Icon (
+                                                          Icons.image,
+                                                          color: Colors.greenAccent,
+                                                          size: 45
+                                                      ):cv_body[index]['name'].split(".").last == 'pdf'?
+                                                      Icon (
+                                                          Icons.picture_as_pdf,
+                                                          color: Colors.red,
+                                                          size: 45
+                                                      ):
+                                                      cv_body[index]['name'].split(".").last == 'docx'?
+                                                      Image.asset('images/jobSearch/docx.png'):Icon (
+                                                          Icons.file_present,
+                                                          color: Colors.blueGrey,
+                                                          size: 45
+                                                      ),
+                                                      title: Text(
+                                                        cv_body[index]['name'],
+                                                        style: TextStyle(fontSize: 20),
+                                                      ),
+                                                      trailing:
+                                                      GestureDetector(
+                                                        onTap: () async {
+                                                          EasyLoading.show(status: 'Applying...');
+                                                          //apply
+                                                          String cv_id = cv_body[index]['id']; String job_id =  Get.find<HomeController>().filter_array[i]['id'];
+                                                          String url = "https://x.smartbuybuy.com/job/index.php?apply=1&token=${token}&cv_id=${cv_id}&job=${job_id}";
+                                                          setState(() {
+                                                            job_apply = true;
+                                                          });
+                                                          print(url); print(job_apply);
+                                                          final response = await http.get(Uri.parse(url));
+                                                          setState(() {
+                                                            job_apply = false;
+                                                            //cv_body = jsonDecode(response.body);
+                                                          });
+                                                          setState(() {
+                                                            jobs[i]['applied'] = 'yes';
+                                                          });
+                                                          EasyLoading.dismiss();
+                                                          Navigator.pop(context);
+                                                          Navigator.pop(context);
+                                                        },
+                                                        child:Icon (
+                                                            Icons.send,
+                                                            color: Colors.blue,
+                                                            size: 23
+                                                        ),
+                                                      ),
+
+                                                    ),
+                                                ],
+                                              ),
+                                            );
+                                          // ],
+                                          //);
+                                        });
+                                    //JSHomeScreen().launch(context);
                                   },
                                   width: MediaQuery.of(context).size.width,
                                   margin: EdgeInsets.all(16),
-                                  color: js_primaryColor,
-                                  child: Text("Apply Now", style: boldTextStyle(color: white)),
+                                  color: jobs[i]['applied'] == 'no'?js_primaryColor:Colors.red,
+                                  child: jobs[i]['applied'] == 'no'?
+                                  Text("Apply Now", style: boldTextStyle(color: white)):
+                                  Text("Applied", style: boldTextStyle(color: white)),
+
                                 ),
                               )
                             ],
@@ -659,7 +778,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("new", style: primaryTextStyle(size: 14)),
+                            Text("${jobs[i]['applied'] == 'yes'?'Applied!':'New'}", style: primaryTextStyle(size: 14,color: Colors.red)),
                             Icon(
                               1 == 0 ? Icons.favorite : Icons.favorite_border,
                               size: 20,
@@ -937,13 +1056,113 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                   right: 0,
                                   bottom: 8,
                                   child: AppButton(
-                                    onTap: () {
-                                      JSHomeScreen().launch(context);
+                                    onTap: () async {
+                                      //applying loading
+                                      if(jobs[i]['applied'] == 'yes'){return;}
+                                      final SharedPreferences prefs = await SharedPreferences.getInstance();
+                                      String? token = prefs.getString('token');
+                                      String url = "https://x.smartbuybuy.com/job/index.php?get_cvs=1&token=${token}";
+                                      setState(() {
+                                        apply_loading = true;
+                                      });
+                                      EasyLoading.show(status: 'loading...');
+
+                                      print(url);print(apply_loading);
+                                      final response = await http.get(Uri.parse(url));
+                                      Get.find<HomeController>().user_loading = true;
+                                      setState(() {
+                                        apply_loading = false;
+                                        cv_body = jsonDecode(response.body);
+                                      });
+                                      EasyLoading.dismiss();
+                                      showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                                      ),
+                                      builder: (context) {
+                                      return // Column(
+                                        //children: [
+                                          Card (
+                                            margin: EdgeInsets.all(10),
+                                            shadowColor: Colors.blueGrey,
+                                            elevation: 10,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: <Widget>[
+                                                Text('Select Cv',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold)),
+                                                for(int index = 0; index < cv_body.length;index++)
+                                                  ListTile(
+                                                    leading:
+                                                    cv_body[index]['name'].split(".").last == 'png'|| cv_body[index]['name'].split(".").last == 'jpg'
+                                                        || cv_body[index]['name'].split(".").last == 'jpeg'?
+                                                    Icon (
+                                                        Icons.image,
+                                                        color: Colors.greenAccent,
+                                                        size: 45
+                                                    ):cv_body[index]['name'].split(".").last == 'pdf'?
+                                                    Icon (
+                                                        Icons.picture_as_pdf,
+                                                        color: Colors.red,
+                                                        size: 45
+                                                    ):
+                                                    cv_body[index]['name'].split(".").last == 'docx'?
+                                                    Image.asset('images/jobSearch/docx.png'):Icon (
+                                                        Icons.file_present,
+                                                        color: Colors.blueGrey,
+                                                        size: 45
+                                                    ),
+                                                    title: Text(
+                                                      cv_body[index]['name'],
+                                                      style: TextStyle(fontSize: 20),
+                                                    ),
+                                                    trailing:
+                                                        GestureDetector(
+                                                          onTap: () async {
+                                                            EasyLoading.show(status: 'Applying...');
+                                                            //apply
+                                                            String cv_id = cv_body[index]['id']; String job_id =  Get.find<HomeController>().filter_array[i]['id'];
+                                                            String url = "https://x.smartbuybuy.com/job/index.php?apply=1&token=${token}&cv_id=${cv_id}&job=${job_id}";
+                                                            setState(() {
+                                                              job_apply = true;
+                                                            });
+                                                            print(url); print(job_apply);
+                                                            final response = await http.get(Uri.parse(url));
+                                                            setState(() {
+                                                              job_apply = false;
+                                                              //cv_body = jsonDecode(response.body);
+                                                            });
+                                                            setState(() {
+                                                              jobs[i]['applied'] = 'yes';
+                                                            });
+                                                            EasyLoading.dismiss();
+                                                            Navigator.pop(context);
+                                                            Navigator.pop(context);
+                                                          },
+                                                          child:Icon (
+                                                              Icons.send,
+                                                              color: Colors.blue,
+                                                              size: 23
+                                                          ),
+                                                        ),
+
+                                                  ),
+                                              ],
+                                            ),
+                                          );
+                                       // ],
+                                      //);
+                                      });
+                                      //JSHomeScreen().launch(context);
                                     },
                                     width: MediaQuery.of(context).size.width,
                                     margin: EdgeInsets.all(16),
-                                    color: js_primaryColor,
-                                    child: Text("Apply Now", style: boldTextStyle(color: white)),
+                                    color: jobs[i]['applied'] == 'no'?js_primaryColor:Colors.red,
+                                    child: jobs[i]['applied'] == 'no'?
+                                    Text("Apply Now", style: boldTextStyle(color: white)):
+                                    Text("Applied", style: boldTextStyle(color: white)),
+
                                   ),
                                 )
                               ],

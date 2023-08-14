@@ -3,10 +3,13 @@ import 'dart:io';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:job_search/model/user.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:job_search/screens/JSCompleteProfileTwoScreen.dart';
 import 'package:job_search/components/JSDrawerScreen.dart';
@@ -20,7 +23,8 @@ import '../controller/home.dart';
 
 
 class JSCompleteProfileOneScreen extends StatefulWidget {
-  const JSCompleteProfileOneScreen({Key? key}) : super(key: key);
+  List<User> kl;
+   JSCompleteProfileOneScreen({Key? key,required this.kl}) : super(key: key);
 
   @override
   _JSCompleteProfileOneScreenState createState() => _JSCompleteProfileOneScreenState();
@@ -40,14 +44,34 @@ class _JSCompleteProfileOneScreenState extends State<JSCompleteProfileOneScreen>
   FocusNode addressFocus = FocusNode();
   FocusNode cityFocus = FocusNode();
   FocusNode phoneNumFocus = FocusNode();
+  final HtmlEditorController controller = HtmlEditorController();
 
 
-  late File image ;bool has_image = false;String f_name = '';String l_name = '';
-  String location = '';String phone = ''; String gender = ''; bool loading = false;
+  late File image ;bool has_image = false;String f_name = '',description='';String l_name = ''; String i_image = '';
+  String location = '';String phone = ''; String gender = 'Male'; bool loading = false;
   @override
   void initState() {
     super.initState();
     init();
+    if(widget.kl[0].name != 'Please Edit'){
+      phone = widget.kl[0].phone;
+      f_name = widget.kl[0].f_name;
+      l_name = widget.kl[0].l_name;
+      gender = widget.kl[0].gender;
+      location = widget.kl[0].location;
+      i_image = widget.kl[0].image;
+      Future.delayed(
+        const Duration(seconds: 4),
+            () {
+          setState(
+                () {
+              controller.setText(widget.kl[0].description);
+
+            },
+          );
+        },
+      );
+    }
   }
 
   void init() async {
@@ -61,6 +85,7 @@ class _JSCompleteProfileOneScreenState extends State<JSCompleteProfileOneScreen>
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       key: scaffoldKey,
       appBar: jsAppBar(context, notifications: false, message: false, bottomSheet: true, backWidget: true, homeAction: true, callBack: () {
@@ -92,7 +117,7 @@ class _JSCompleteProfileOneScreenState extends State<JSCompleteProfileOneScreen>
                     backgroundColor: context.scaffoldBackgroundColor,
                   ),
                   padding: EdgeInsets.all(18),
-                  child: has_image == false?Text('RP', style: boldTextStyle(size: 22))
+                  child: has_image == false? i_image != ''?Image.network(widget.kl[0].image):Text('RP', style: boldTextStyle(size: 22))
                       : Image.file(image,height: 140,),
                 ))),
                 Text("Profile", style: boldTextStyle(size: 20)),
@@ -153,6 +178,7 @@ class _JSCompleteProfileOneScreenState extends State<JSCompleteProfileOneScreen>
                         showSearchBox: true,
                         isFilterOnline: true
                     ),
+                    selectedItem: location,
                     asyncItems: (String filter) => authController.google_autocomplete(filter),
                     onChanged: (print){
                       location = print!;
@@ -176,7 +202,7 @@ class _JSCompleteProfileOneScreenState extends State<JSCompleteProfileOneScreen>
                     onChanged: (print){
                       gender = print!;
                     },
-                    selectedItem: 'Male',
+                    selectedItem: gender,
                   ),
                 ),
                 16.height,
@@ -196,6 +222,70 @@ class _JSCompleteProfileOneScreenState extends State<JSCompleteProfileOneScreen>
                   ),
                 ),
                 24.height,
+                Text("Description*", style: boldTextStyle()),
+                HtmlEditor(
+                  controller: controller,
+                  htmlEditorOptions: HtmlEditorOptions(
+                    autoAdjustHeight: true,
+                    hint:  'Describe Yourself',
+                    shouldEnsureVisible: true,
+                    adjustHeightForKeyboard: true,
+                  ),
+                  htmlToolbarOptions: HtmlToolbarOptions(
+                    toolbarPosition: ToolbarPosition.aboveEditor,
+                    toolbarType: ToolbarType.nativeGrid,
+                    //by default
+                    gridViewHorizontalSpacing: 0,
+                    gridViewVerticalSpacing: 0,
+                    dropdownBackgroundColor: Colors.white60,
+                    toolbarItemHeight: 40,
+                    buttonColor: Colors.black,
+                    buttonFocusColor: Colors.black,
+                    buttonBorderColor: Colors.red,
+                    buttonFillColor: Colors.blue,
+                    dropdownIconColor: Colors.blue,
+                    dropdownIconSize: 26,
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                    onDropdownChanged: (DropdownType type, dynamic changed,
+                        Function(dynamic)? updateSelectedItem) {
+                      return true;
+                    },
+                    mediaLinkInsertInterceptor:
+                        (String url, InsertFileType type) {
+                      return true;
+                    },
+                    mediaUploadInterceptor:
+                        (PlatformFile file, InsertFileType type) async {
+                      return true;
+                    },
+                  ),
+                  otherOptions: OtherOptions(
+                    height: 550,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(25),
+                      color: Colors.white,
+                    ),
+                  ),
+                  callbacks: Callbacks(
+                    onBeforeCommand: (String? currentHtml) {},
+                    onChangeContent: (String? changed) {
+                      setState(() {
+                        description = changed!;
+
+                      });
+                    },
+                    onChangeCodeview: (String? changed) {
+                      // print(changed); print('kuno');
+
+                    },
+                    onNavigationRequestMobile: (String url) {
+                      return NavigationActionPolicy.ALLOW;
+                    },
+                  ),
+                ),
                 Center(
                   child:AppButton(
                     color: js_primaryColor,

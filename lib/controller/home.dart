@@ -9,9 +9,9 @@ class HomeController extends GetxController implements GetxService {
   HomeController({required this.HomeRepo});
 
   bool login = false;  var login_response = {};
-  login_signup(String email, String password) async{
+  login_signup(String role,email, password) async{
     login = true;
-    Response response = await HomeRepo.login_signup(email,password);
+    Response response = await HomeRepo.login_signup(role,email,password);
     login_response = response.body;
     login = false;
     update();

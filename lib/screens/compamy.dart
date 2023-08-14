@@ -10,6 +10,7 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:job_search/controller/api.dart';
+import 'package:job_search/screens/candidate.dart';
 import 'package:job_search/screens/post_job.dart';
 import 'package:job_search/screens/workExperience.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -27,6 +28,7 @@ import '../components/JSReviewAndSaVeComponent.dart';
 import '../controller/home.dart';
 import '../model/user.dart';
 import 'JSCompleteProfileOneScreen.dart';
+import 'edit_company.dart';
 import 'education.dart';
 import 'package:http/http.dart' as http;
 class EmployeeScreen extends StatefulWidget {
@@ -52,7 +54,9 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
   var user = {}; var jobs = {};bool user_loading = false;
   //List<Education> edu = ;
   void init() async {
-    String url = "https://x.smartbuybuy.com/job/index.php?get_employer=1&token=843995707f1ab94b95e85477";
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String url = "https://x.smartbuybuy.com/job/index.php?get_employer=1&token=${token}";
     setState(() {
       loading = true;
     });
@@ -112,7 +116,7 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    PostJob().launch(context);
+                    PostJob(gongzuo:[],edit : 0).launch(context);
                   },
                   style: ElevatedButton.styleFrom(
                       primary: js_primaryColor,
@@ -200,9 +204,20 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                             children: [
                               Container(
                                 width: 200,
-                                child:                               Text(user['long_name'], style: boldTextStyle(size: 22)),
-
+                                child:Text(user['long_name'], style: boldTextStyle(size: 22)),
                               ),
+                              IconButton(onPressed: (){
+                               User kv = User(id: user['id'], name: user['long_name'],
+                                    gender: 'Male', phone: user['phone'],
+                                    email: user['email'], location: user['location'],
+                                    place_id: user['place_id'], image: user['image'],
+                                    description: user['description'],
+                                    candidate: 'No', job: {},
+                                    f_name: user['short_name'], l_name: user['long_name']);
+                                List<User> users = [];
+                                users.add(kv);
+                                EditMoney(kl: users,).launch(context);
+                              }, icon: Icon(Icons.edit))
                             ],
                           ),
                           Row(
@@ -257,7 +272,9 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                         child: Center(
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
-                                            children: <Widget>[Text('Total Jobs',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),), Text('40')],
+                                            children: <Widget>[
+                                              Text('Total Jobs',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                                              loading?CircularProgressIndicator():Text(user['posted_jobs'].toString())],
                                           ),
                                         ),
                                       )),
@@ -282,7 +299,13 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                   height: 100,
                                   child:  Row(
                                     children: [
-                                      Expanded(child: Card(
+                                      Expanded(child:
+                                  GestureDetector(
+                                  onTap: () async {
+                                CandidatesScreen(id: 2,).launch(context);
+
+                                },child:
+                                      Card(
                                         elevation: 2,
                                         shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(8)
@@ -290,10 +313,12 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                         child: Center(
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
-                                            children: <Widget>[Text('Total Jobs',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),), Text('40')],
+                                            children: <Widget>[
+                                              Text('Total Applicants',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                                              loading?CircularProgressIndicator():Text(user['applications'].toString())],
                                           ),
                                         ),
-                                      )),
+                                      ))),
                                       20.width,
                                       Expanded(child: Card(
                                         elevation: 2,
@@ -315,7 +340,13 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                   height: 100,
                                   child:  Row(
                                     children: [
-                                      Expanded(child: Card(
+                                      Expanded(child:
+                                    GestureDetector(
+                                    onTap: () async {
+                                      CandidatesScreen(id: 1,).launch(context);
+
+                                    },child:
+                                      Card(
                                         elevation: 2,
                                         shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(8)
@@ -323,10 +354,12 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                         child: Center(
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
-                                            children: <Widget>[Text('Total Jobs',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),), Text('40')],
+                                            children: <Widget>[
+                                              Text('Total Candidates',style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                                              loading?CircularProgressIndicator():Text(user['candidate'].toString())],
                                           ),
                                         ),
-                                      )),
+                                      ))),
                                       20.width,
                                       Expanded(child: Card(
                                         elevation: 2,
@@ -610,7 +643,7 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                               bottom: 8,
                                               child: AppButton(
                                                 onTap: () {
-                                                  //JSHomeScreen().launch(context);
+                                                  PostJob(gongzuo: jobs['job'][i],edit: 1,).launch(context);
                                                 },
                                                 width: MediaQuery.of(context).size.width,
                                                 margin: EdgeInsets.all(16),
@@ -623,12 +656,13 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                       );
                                   },
                                 );
-                              })
+                              }),
+                            300.height
                           ],
                         ),
                       ),
-                      Container(
-                          child: SingleChildScrollView(
+                     loading == false? SingleChildScrollView(
+                          child: Container(
                             child:  Container(
                               margin: EdgeInsets.all(8),
                               padding: EdgeInsets.all(16),
@@ -643,6 +677,18 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
+                                    children: [
+                                      Icon(Icons.email),
+                                      Text(user['email']),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.call),
+                                      Text(user['phone']),
+                                    ],
+                                  ),
+                                  Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text("Description", style: secondaryTextStyle(size: 18)),
@@ -650,11 +696,50 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                     ],
                                   ),
                                   Divider(height: 0, color: gray.withOpacity(0.2)),
+                                  HtmlWidget(
+                                    // the first parameter (`html`) is required
+                                    user['description'],
+
+                                    // all other parameters are optional, a few notable params:
+
+                                    // specify custom styling for an element
+                                    // see supported inline styling below
+                                    customStylesBuilder: (element) {
+                                      //if (element.classes.contains('foo')) {
+                                      return {'fontSize': '60'};
+                                      // }
+
+                                      return null;
+                                    },
+
+
+                                    // these callbacks are called when a complicated element is loading
+                                    // or failed to render allowing the app to render progress indicator
+                                    // and fallback widget
+                                    onErrorBuilder: (context, element, error) => Text('$element error: $error'),
+                                    onLoadingBuilder: (context, element, loadingProgress) => CircularProgressIndicator(),
+
+                                    // this callback will be triggered when user taps a link
+                                    // onTapUrl: (url) => print('tapped $url'),
+
+                                    // select the render mode for HTML body
+                                    // by default, a simple `Column` is rendered
+                                    // consider using `ListView` or `SliverList` for better performance
+                                    renderMode: RenderMode.column,
+
+                                    // set the default styling for text
+                                    textStyle: TextStyle(fontSize: 15),
+
+                                    // turn on `webView` if you need IFRAME support (it's disabled by default)
+                                    //webView: true,
+                                  ),
+                                  300.height
+
                                 ],
                               ),
                             ),
                           )
-                      ),
+                      ):Container(),
               Container(
               child: GalleryImage(
              // key: _key,

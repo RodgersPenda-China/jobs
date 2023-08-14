@@ -59,7 +59,7 @@ class _JSSignUpScreenState extends State<SelectScreen> {
                     children: [
                       Text("Employee", style: boldTextStyle(color: white)),
                       8.width,
-                      Icon(Icons.business, color: white, size: iconSize),
+                      Icon(Icons.person, color: white, size: iconSize),
                     ],
                   ),
                 ),
@@ -78,7 +78,7 @@ class _JSSignUpScreenState extends State<SelectScreen> {
                     children: [
                       Text("Employer", style: boldTextStyle(color: white)),
                       8.width,
-                      Icon(Icons.person, color: white, size: iconSize),
+                      Icon(Icons.business, color: white, size: iconSize),
                     ],
                   ),
                 ),

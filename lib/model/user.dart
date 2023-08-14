@@ -13,16 +13,25 @@ class UsersModel{
   );
 }
 class User {
-  String id, name, gender, phone, email, location, place_id, image;
+  String id, name, gender, phone, email, location, place_id, image,description,candidate,
+  f_name,l_name;
+  var job;
 
   User(
       {required this.id, required this.name, required this.gender, required this.phone,
-        required this.email, required this.location, required this.place_id, required this.image});
+        required this.email, required this.location, required this.place_id, required this.image,
+      required this.description,required this.candidate,required this.job,
+      required this.f_name, required this.l_name});
 
   factory User.fromJson(Map<String, dynamic> json)=>
       User(
         id: json["id"] ?? '',
         name: json["name"] ?? 'Please Edit',
+        f_name: json["f_name"],
+        l_name: json["l_name"],
+        candidate: json["candidate"],
+        job: json["job"]??'No Description',
+        description: json["description"] ?? 'Please Edit',
         phone: json["phone"] ?? 'Please Edit',
         email: json["email"] ?? 'Please Edit',
         location: json["location"] ?? 'Please Edit',

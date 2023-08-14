@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:job_search/screens/JSCompleteProfileOneScreen.dart';
 import 'package:job_search/screens/JSEnableNotificationDialog.dart';
@@ -7,6 +10,11 @@ import 'package:job_search/utils/JSColors.dart';
 import 'package:job_search/utils/JSImage.dart';
 import 'package:job_search/utils/JSWidget.dart';
 import 'package:job_search/main.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:http/http.dart' as http;
+import '../components/JSDrawerScreen.dart';
+import '../controller/home.dart';
+import 'JSCompanyProfileScreens.dart';
 
 class JSMessagesScreen extends StatefulWidget {
   const JSMessagesScreen({Key? key}) : super(key: key);
@@ -17,18 +25,40 @@ class JSMessagesScreen extends StatefulWidget {
 
 class _JSMessagesScreenState extends State<JSMessagesScreen> {
   var toYearItems = ['Inbox', 'Archive', 'Spam'];
+  TabController? controller;
 
   String toYearValue = 'Inbox';
 
   @override
   void initState() {
     super.initState();
-    init();
+    make_https();
   }
+  var messages = {};
+
+  make_https() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String url = '';
+      url = "https://x.smartbuybuy.com/job/index.php?get_message=1&role=0&token=${token}";
+    setState(() {
+      loading = true;
+    });
+    print(url);
+    final response = await http.get(Uri.parse(url));
+    setState(() {
+      loading = false;
+      messages = json.decode(response.body);
+    });
+    print('object');
+    // var jobs = ;
+  }
+  bool loading = false;
 
   void init() async {
     //
   }
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
   @override
   void setState(fn) {
@@ -37,116 +67,166 @@ class _JSMessagesScreenState extends State<JSMessagesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: jsAppBar(context, backWidget: true, homeAction: true, bottomSheet: false),
-      body: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Container(
-            decoration: boxDecorationWithRoundedCorners(boxShadow: [
-              BoxShadow(
-                spreadRadius: 0.6,
-                blurRadius: 1,
-                color: appStore.isDarkModeOn ? scaffoldDarkColor : gray.withOpacity(0.5),
-              ),
-            ], borderRadius: BorderRadius.circular(0), backgroundColor: context.scaffoldBackgroundColor),
-            padding: EdgeInsets.only(bottom: 16, top: 16),
-            child: Container(
-              decoration: boxDecorationWithRoundedCorners(
-                border: Border.all(color: gray.withOpacity(0.4)),
-                backgroundColor: appStore.isDarkModeOn ? scaffoldDarkColor : white,
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              child: DropdownButton(
-                isExpanded: true,
-                underline: Container(color: Colors.transparent),
-                value: toYearValue,
-                icon: Icon(Icons.keyboard_arrow_down),
-                items: toYearItems.map((String toYearItems) {
-                  return DropdownMenuItem(
-                    value: toYearItems,
-                    child: Text(toYearItems),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    toYearValue = newValue!;
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return Dialog(
-                          backgroundColor: context.scaffoldBackgroundColor,
-                          insetPadding: EdgeInsets.zero,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          child: JSEnableNotificationDialog(),
-                        );
-                      },
-                    );
-                  });
-                },
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+          key: scaffoldKey,
+          drawer: JSDrawerScreen(),
+          appBar: jsAppBar(context, backWidget: true, homeAction: true, message: false, notifications: false, bottomSheet: true, callBack: () {
+            setState(() {});
+            scaffoldKey.currentState!.openDrawer();
+          }),
+          body: GetBuilder<HomeController>(builder: (authController){
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                commonCachedNetworkImage(js_message, fit: BoxFit.cover, height: 150),
                 16.height,
-                Text("Welcome to Messages", style: boldTextStyle(size: 22)),
-                8.height,
-                Text(
-                  "When an employer contact you, you will see message here.",
-                  style: primaryTextStyle(),
-                  textAlign: TextAlign.center,
+                TabBar(
+                  labelColor: appStore.isDarkModeOn ? white : black,
+                  unselectedLabelColor: gray,
+                  isScrollable: false,
+                  indicatorColor: js_primaryColor,
+                  tabs: [
+                    //Tab(child: Text("CV", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
+                    Tab(child: Text("Applied Jobs", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
+                    Tab(child: Text("Received Invites", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
+                  ],
+                  controller: controller,
                 ),
-                16.height,
-                AppButton(
-                  color: js_primaryColor,
-                  width: context.width(),
-                  onTap: () {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) => CupertinoAlertDialog(
-                              title: Text("${"Indeed Jobs"} Would Like to Send You Notification"),
-                              content: Text("Notification may include alerts, sound and icon badges. These can configured in Settings. "),
-                              actions: [
-                                CupertinoDialogAction(
-                                  isDefaultAction: true,
-                                  child: Text("Don't Allow"),
-                                  onPressed: () {
-                                    finish(context);
-                                  },
-                                ),
-                                CupertinoDialogAction(
-                                  child: Text("Allow"),
-                                  onPressed: () {
-                                    finish(context);
-                                  },
-                                )
+                TabBarView(
+                  children: [
+                    loading? Center(child: CircularProgressIndicator(color: Colors.blue,),):
+                    messages['applied'].length == 0?
+                    Center(child: Text('No Data Found'),)
+                        :
+                    ListView.separated(
+                      itemCount: messages['applied'].length,
+                      padding: EdgeInsets.all(8),
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      separatorBuilder: (BuildContext context, int index) => Divider(),
+                      itemBuilder: (context, index) {
+                        //JSPopularCompanyModel data = popularCompanyList[index];
+
+                        return  Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: (){
+                                JSCompanyProfileScreens(id: messages['applied'][index]['id'],employer: 0,).launch(context);
+                                 },
+                              child: Row(
+                                children: [
+                                  commonCachedNetworkImage(messages['applied'][index]['image'], height: 50, width: 50, fit: BoxFit.contain),
+                                  16.width,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(messages['applied'][index]['name'], style: boldTextStyle()),
+                                      4.height,
+
+                                      Row(
+                                        children: [
+                                          Container(
+                                              width: 200,
+                                              child:Text('Job: ${messages['applied'][index]['job']}', style: secondaryTextStyle(color: js_textColor.withOpacity(0.7)))
+
+                                          )
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Container(
+                                              width: 200,
+                                              child:Text('CV: ${messages['applied'][index]['cv']}', style: secondaryTextStyle(color: js_textColor.withOpacity(0.7)))
+
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            )
+                            ,
+                            6.height,
+                            Row(
+                              children: [
+                                Icon(Icons.location_on,color: Colors.blue,),
+                                8.width,
+                                Text('${messages['applied'][index]['location']}', style: secondaryTextStyle(color: Colors.blue)),
                               ],
-                            ));
-                  },
-                  child: Text("Find jobs", style: boldTextStyle(color: white)),
-                ),
-                8.height,
-                Container(
-                  width: context.width(),
-                  child: OutlinedButton(
-                    child: Text("Upload your CV", style: boldTextStyle(color: js_primaryColor)).paddingSymmetric(vertical: 12),
-                    onPressed: () {
-                      JSCompleteProfileOneScreen().launch(context);
-                    },
-                  ),
-                )
+                            ),
+                          ],
+                        ).onTap(() {
+                          // JSCompanyProfileScreens(popularCompanyList: data).launch(context);
+                        });
+                      },
+                    ),
+                    loading? Center(child: CircularProgressIndicator(color: Colors.blue,),):
+                    messages['candidate'].length == 0?
+                    Center(child: Text('No Data Found'),)
+                        :
+                    ListView.separated(
+                      itemCount: messages['applied'].length,
+                      padding: EdgeInsets.all(8),
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      separatorBuilder: (BuildContext context, int index) => Divider(),
+                      itemBuilder: (context, index) {
+                        //JSPopularCompanyModel data = popularCompanyList[index];
+
+                        return  Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: (){
+                                JSCompanyProfileScreens(id: messages['candidate'][index]['id'],employer: 0,).launch(context);
+                              },
+                              child: Row(
+                                children: [
+                                  commonCachedNetworkImage(messages['candidate'][index]['image'], height: 50, width: 50, fit: BoxFit.contain),
+                                  16.width,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(messages['candidate'][index]['name'], style: boldTextStyle()),
+                                      4.height,
+
+                                      Row(
+                                        children: [
+                                          Container(
+                                              width: 200,
+                                              child:Text('${messages['candidate'][index]['long_name']}', style: secondaryTextStyle(color: js_textColor.withOpacity(0.7)))
+
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            )
+                            ,
+                            6.height,
+                            Row(
+                              children: [
+                                Icon(Icons.location_on,color: Colors.blue,),
+                                8.width,
+                                Text('${messages['candidate'][index]['location']}', style: secondaryTextStyle(color: Colors.blue)),
+                              ],
+                            ),
+                          ],
+                        ).onTap(() {
+                          // JSCompanyProfileScreens(popularCompanyList: data).launch(context);
+                        });
+                      },
+                    ),
+                  ],
+                ).expand(),
               ],
-            ).paddingOnly(left: 40, right: 40, top: context.height() * 0.12),
-          ),
-        ],
-      ),
+            );
+          })),
     );
   }
 }

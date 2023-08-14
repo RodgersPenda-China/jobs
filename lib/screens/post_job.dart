@@ -18,7 +18,8 @@ import '../controller/home.dart';
 
 
 class PostJob extends StatefulWidget {
-  PostJob({Key? key}) : super(key: key);
+  var gongzuo = [];int edit;
+  PostJob({Key? key,required this.gongzuo,required this.edit}) : super(key: key);
 
   @override
   _JSCompleteProfileThreeScreenState createState() => _JSCompleteProfileThreeScreenState();

@@ -161,7 +161,7 @@ class _JSJobCompaniesState extends State<JSJobCompanies> {
             children: [
               GestureDetector(
                 onTap: (){
-                  JSCompanyProfileScreens(id: companies[index]['id']).launch(context);
+                  JSCompanyProfileScreens(id: companies[index]['id'],employer: 0,).launch(context);
                 },
                 child: Row(
                   children: [

@@ -8,6 +8,12 @@ import 'package:job_search/screens/JSSearchResultScreen.dart';
 import 'package:job_search/screens/JSSettingScreen.dart';
 import 'package:job_search/utils/JSImage.dart';
 
+import '../screens/JSCompanyProfileScreens.dart';
+import '../screens/JSCompleteProfileFiveScreen.dart';
+import '../screens/JSMessagesScreen.dart';
+import '../screens/candidate.dart';
+import '../screens/compamy.dart';
+
 List<JSPopularCompanyModel> getPopularCompanyData() {
   List<JSPopularCompanyModel> list = [];
   list.add(JSPopularCompanyModel(companyImage: js_google, companyName: "Google", companyRatting: 5.0, totalReview: "120 Reviews"));
@@ -35,21 +41,49 @@ List<JSPopularCompanyModel> getSkillData() {
 
 List<JSPopularCompanyModel> getDrawerList1() {
   List<JSPopularCompanyModel> drawerList = [];
-  drawerList.add(JSPopularCompanyModel(companyName: "Find Jobs", widget: JSJobSearchScreen()));
-  drawerList.add(JSPopularCompanyModel(companyName: "Company Review", widget: JSReviewAndSaveScreen()));
-  drawerList.add(JSPopularCompanyModel(companyName: "Salary Search", widget: JSSearchResultScreen()));
+  drawerList.add(JSPopularCompanyModel(companyName: "Home", widget: JSSearchResultScreen()));
+  drawerList.add(JSPopularCompanyModel(companyName: "Dashboard", widget: EmployeeScreen()));
+  drawerList.add(JSPopularCompanyModel(companyName: "Find Candidates", widget: CandidatesScreen(id: 0,)));
+
+  return drawerList;
+}
+List<JSPopularCompanyModel> getDrawerList2() {
+  List<JSPopularCompanyModel> drawerList = [];
+  drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "My Candidates", widget: CandidatesScreen(id: 1,)));
+  drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "Applicants", widget: CandidatesScreen(id: 2,)));
+  drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "Profile", widget: JSCompanyProfileScreens(id: 1.toString(),employer: 1,)));
+  // drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "Email Settings"));
+  drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "Settings", widget: JSSettingScreen()));
+  // drawerList.add(JSPopularCompanyModel(selectSkill: true, companyName: "Country and Language", companyImage: js_usFlag, totalReview: "united Kingdom"));
+  drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "Help Center"));
+  drawerList.add(
+    JSPopularCompanyModel(
+      selectSkill: false,
+      companyName: "Sign Out",
+      totalReview: "nd15n545lnz@privaterelay.applied.com",
+      widget: SizedBox(),
+    ),
+  );
 
   return drawerList;
 }
 
-List<JSPopularCompanyModel> getDrawerList2() {
+List<JSPopularCompanyModel> getDrawerList3() {
   List<JSPopularCompanyModel> drawerList = [];
-  drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "Profile", widget: JSProfileScreen()));
-  drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "My Jobs", widget: JSJobCompanies()));
-  drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "My Reviews", widget: JSReviewAndSaveScreen()));
-  drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "Email Settings"));
+  drawerList.add(JSPopularCompanyModel(companyName: "Home", widget: JSSearchResultScreen()));
+  drawerList.add(JSPopularCompanyModel(companyName: "Find Companies", widget: JSJobCompanies()));
+  drawerList.add(JSPopularCompanyModel(companyName: "Profile", widget: JSProfileScreen()));
+
+  return drawerList;
+}
+List<JSPopularCompanyModel> getDrawerList4() {
+  List<JSPopularCompanyModel> drawerList = [];
+  drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "Messages", widget: JSMessagesScreen()));
+  //drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "Applicants", widget: CandidatesScreen(id: 2,)));
+  //drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "Profile", widget: JSCompanyProfileScreens(id: 1.toString(),employer: 1,)));
+  // drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "Email Settings"));
   drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "Settings", widget: JSSettingScreen()));
-  drawerList.add(JSPopularCompanyModel(selectSkill: true, companyName: "Country and Language", companyImage: js_usFlag, totalReview: "united Kingdom"));
+  // drawerList.add(JSPopularCompanyModel(selectSkill: true, companyName: "Country and Language", companyImage: js_usFlag, totalReview: "united Kingdom"));
   drawerList.add(JSPopularCompanyModel(selectSkill: false, companyName: "Help Center"));
   drawerList.add(
     JSPopularCompanyModel(

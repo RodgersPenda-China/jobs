@@ -14,6 +14,7 @@ import '../controller/api.dart';
 import '../controller/home.dart';
 import '../controller/repo.dart';
 import 'JSProfileScreen.dart';
+import 'JSSearchResultScreen.dart';
 
 class JSSplashScreen extends StatefulWidget {
   const JSSplashScreen({Key? key}) : super(key: key);
@@ -47,7 +48,7 @@ class _JSSplashScreenState extends State<JSSplashScreen> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     if(token == null || token == '') {
-      SelectScreen().launch(context);
+      JSSearchResultScreen().launch(context);
     } else {
       JSProfileScreen().launch(context);
     }

@@ -7,9 +7,11 @@ import 'package:job_search/utils/JSColors.dart';
 import 'package:job_search/utils/JSDataGenerator.dart';
 import 'package:job_search/main.dart';
 
+import '../screens/JSMessagesScreen.dart';
 import '../screens/candidate.dart';
 import '../screens/compamy.dart';
 import '../screens/post_job.dart';
+import '../screens/select.dart';
 
 class JSDrawerScreen extends StatefulWidget {
   const JSDrawerScreen({Key? key}) : super(key: key);
@@ -30,7 +32,14 @@ class _JSDrawerScreenState extends State<JSDrawerScreen> {
   }
 
   void init() async {
-    //
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? role = prefs.getInt('role');
+    if(role ==0){
+      setState(() {
+        drawerList = getDrawerList3();
+        drawerList2 = getDrawerList4();
+      });
+    }
   }
 
   @override
@@ -123,16 +132,17 @@ class _JSDrawerScreenState extends State<JSDrawerScreen> {
                           ).paddingSymmetric(horizontal: 8, vertical: 8),
                           Divider(color: gray.withOpacity(0.4)).visible(drawerIndex < 7),
                         ],
-                      ).onTap(() {
-                        if (drawerIndex == 3 || drawerIndex == 6) {
-                          PostJob().launch(context);
-                        } else if (drawerIndex == 7) {
-                          EmployeeScreen().launch(context);
-                          // showConfirmDialog(context, 'Do you want to logout from the app?', onAccept: () {
-                          //   JSHomeScreen().launch(context);
-                          // });
-                          //showAlertDialog(context);
+                      ).onTap(() async {
+                        final SharedPreferences prefs = await SharedPreferences.getInstance();
+                        int? role = prefs.getInt('role');
+                        late int cut;
+                        if(role == 0){cut = 3;} else {cut = 5;}
+                        if (drawerIndex == cut) {
+                          //Sign the person out
+                          await prefs.setString('token', '');
+                          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute( builder: (ctx) => SelectScreen()), (route) => false);
                         } else {
+                          print(e.widget.validate());
                           e.widget.validate().launch(context);
                         }
                       });

@@ -3,8 +3,8 @@ import 'api.dart';
 class homeRepo {
   final ApiClient apiClient;
   homeRepo({required this.apiClient});
-  login_signup(String email,String password) async{
-    return await apiClient.getData('login_register=1&email=${email}&password=${password}');
+  login_signup(String role,email,password) async{
+    return await apiClient.getData('login_register=1&role=${role}&email=${email}&password=${password}');
   }
   google(String place) async{
     return await apiClient.getData('google=1&place=${place}');

@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 // import 'package:flutter_html_to_pdf/flutter_html_to_pdf.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -18,9 +20,10 @@ import 'package:job_search/utils/JSWidget.dart';
 import 'package:job_search/main.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shimmer/shimmer.dart';
-
+import 'package:http/http.dart' as http;
 import '../components/JSReviewAndSaVeComponent.dart';
 import '../controller/home.dart';
+import '../model/user.dart';
 import 'JSCompleteProfileOneScreen.dart';
 import 'education.dart';
 
@@ -42,12 +45,34 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
   void initState() {
     super.initState();
     init();
-    Get.find<HomeController>().get_user();
-    Get.find<HomeController>().get_cv();
+   // Get.find<HomeController>().get_user();
+   //  Get.find<HomeController>().get_cv();
   }
 
+  List<User> user = []; List<Work_Experience> work = [];bool user_loading = false;
+  List<Education> edu = []; bool candidate_loading = false;
   void init() async {
-    //
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String url = "https://x.smartbuybuy.com/job/index.php?get_user=1&token=${token}";
+    setState(() {
+      loading = true; candidate_loading = true;
+    });
+    Get.find<HomeController>().user_loading = true;
+    print(url);
+    final response = await http.get(Uri.parse(url));
+     setState(() {
+      //  loading = false;
+        var _body = jsonDecode(response.body);
+    Get.find<HomeController>().user = UsersModel.fromJson(_body).user;
+    Get.find<HomeController>().work = UsersModel.fromJson(_body).work;
+    Get.find<HomeController>().edu = UsersModel.fromJson(_body).education;
+    Get.find<HomeController>().user_loading = false;
+     });
+    Get.find<HomeController>().user_loading = false;
+
+  print(Get.find<HomeController>().user[0].gender);
+
   }
 
   @override
@@ -134,7 +159,8 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [Text(authController.user[0].name, style: boldTextStyle(size: 22)),
-                        IconButton(onPressed: () {JSCompleteProfileOneScreen().launch(context);}, icon: Icon(Icons.edit, color: js_primaryColor))],
+                        IconButton(onPressed: () {
+                          JSCompleteProfileOneScreen(kl: authController.user,).launch(context);}, icon: Icon(Icons.edit, color: js_primaryColor))],
                     ),
                     Row(
                       children: [
@@ -511,6 +537,44 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                               ],
                             ),
                             Divider(height: 0, color: gray.withOpacity(0.2)),
+                            HtmlWidget(
+                              // the first parameter (`html`) is required
+                              authController.user[0].description,
+
+                              // all other parameters are optional, a few notable params:
+
+                              // specify custom styling for an element
+                              // see supported inline styling below
+                              customStylesBuilder: (element) {
+                                //if (element.classes.contains('foo')) {
+                                return {'fontSize': '60'};
+                                // }
+
+                                return null;
+                              },
+
+
+                              // these callbacks are called when a complicated element is loading
+                              // or failed to render allowing the app to render progress indicator
+                              // and fallback widget
+                              onErrorBuilder: (context, element, error) => Text('$element error: $error'),
+                              onLoadingBuilder: (context, element, loadingProgress) => CircularProgressIndicator(),
+
+                              // this callback will be triggered when user taps a link
+                              // onTapUrl: (url) => print('tapped $url'),
+
+                              // select the render mode for HTML body
+                              // by default, a simple `Column` is rendered
+                              // consider using `ListView` or `SliverList` for better performance
+                              renderMode: RenderMode.column,
+
+                              // set the default styling for text
+                              textStyle: TextStyle(fontSize: 15),
+
+                              // turn on `webView` if you need IFRAME support (it's disabled by default)
+                              //webView: true,
+                            ),
+                            300.height
                           ],
                         ),
                       ),

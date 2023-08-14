@@ -20,9 +20,9 @@ import 'JSHomeScreen.dart';
 
 class JSCompanyProfileScreens extends StatefulWidget {
   //final JSPopularCompanyModel? popularCompanyList;
-  final String id;
+  final String id;  int employer;
 
- JSCompanyProfileScreens({required this.id});
+ JSCompanyProfileScreens({required this.id,required this.employer});
 
   @override
   _JSCompanyProfileScreensState createState() => _JSCompanyProfileScreensState();
@@ -41,7 +41,15 @@ class _JSCompanyProfileScreensState extends State<JSCompanyProfileScreens> {
   var jobs = {};
 
   make_https() async {
-    String url = "https://x.smartbuybuy.com/job/index.php?get_company=1&id=${widget.id}";
+    String url = '';
+    if(widget.employer == 0) {
+       url = "https://x.smartbuybuy.com/job/index.php?get_company=1&id=${widget
+          .id}";
+    } else {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      url = "https://x.smartbuybuy.com/job/index.php?get_company=1&token=${token}";
+    }
     print(url);
     setState(() {
       loading = true;
@@ -74,7 +82,7 @@ class _JSCompanyProfileScreensState extends State<JSCompanyProfileScreens> {
           setState(() {});
           scaffoldKey.currentState!.openDrawer();
         }),
-        body:loading?Center( child: CircularProgressIndicator()): Column(
+        body:loading?Center( child: CircularProgressIndicator(color: Colors.blue,)): Column(
           children: [
             Container(
               color: js_primaryColor,
@@ -105,17 +113,19 @@ class _JSCompanyProfileScreensState extends State<JSCompanyProfileScreens> {
                     ],
                   ),
                   16.height,
-                  AppButton(
-                    color: white,
-                    width: context.width(),
-                    onTap: () {
-                      //JSCompleteProfileTwoScreen().launch(context);
-                    },
-                    child: Text("Follow", style: boldTextStyle(color: js_primaryColor)),
+                  Row(
+                    children: [
+                      Icon(Icons.email),
+                      Text(jobs['user'][0]['email']),
+                    ],
                   ),
-                  8.height,
-                  Text("Get weekly updates, new jobs and review", style: primaryTextStyle(color: white)),
-                ],
+                  Row(
+                    children: [
+                      Icon(Icons.call),
+                      Text(jobs['user'][0]['phone']),
+                    ],
+                  ),
+                  ],
               ),
             ),
             16.height,
@@ -141,11 +151,63 @@ class _JSCompanyProfileScreensState extends State<JSCompanyProfileScreens> {
             ),
             TabBarView(children: [
               SingleChildScrollView(
-                  child:Container(
-                    child:Text(jobs['user'][0]['location'].toString(), style: boldTextStyle(color: Colors.black)),
+                  child: Container(
+                    child:  Container(
+                      margin: EdgeInsets.all(8),
+                      padding: EdgeInsets.all(16),
+                      decoration: boxDecorationWithRoundedCorners(
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(spreadRadius: 0.6, blurRadius: 1, color: gray.withOpacity(0.5)),
+                        ],
+                        backgroundColor: context.scaffoldBackgroundColor,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          HtmlWidget(
+                            // the first parameter (`html`) is required
+                            jobs['user'][0]['description'],
 
-                  ),
+                            // all other parameters are optional, a few notable params:
 
+                            // specify custom styling for an element
+                            // see supported inline styling below
+                            customStylesBuilder: (element) {
+                              //if (element.classes.contains('foo')) {
+                              return {'fontSize': '60'};
+                              // }
+
+                              return null;
+                            },
+
+
+                            // these callbacks are called when a complicated element is loading
+                            // or failed to render allowing the app to render progress indicator
+                            // and fallback widget
+                            onErrorBuilder: (context, element, error) => Text('$element error: $error'),
+                            onLoadingBuilder: (context, element, loadingProgress) => CircularProgressIndicator(),
+
+                            // this callback will be triggered when user taps a link
+                            // onTapUrl: (url) => print('tapped $url'),
+
+                            // select the render mode for HTML body
+                            // by default, a simple `Column` is rendered
+                            // consider using `ListView` or `SliverList` for better performance
+                            renderMode: RenderMode.column,
+
+                            // set the default styling for text
+                            textStyle: TextStyle(fontSize: 15),
+
+                            // turn on `webView` if you need IFRAME support (it's disabled by default)
+                            //webView: true,
+                          ),
+                          300.height
+
+                        ],
+                      ),
+                    ),
+                  )
               ),
               SingleChildScrollView(
                 child: Column(

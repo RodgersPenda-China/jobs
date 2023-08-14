@@ -3,6 +3,8 @@ import 'package:nb_utils/nb_utils.dart';
 import 'package:job_search/screens/JSCompleteProfileOneScreen.dart';
 import 'package:job_search/utils/JSWidget.dart';
 
+import '../model/user.dart';
+
 class JSSettingComponent extends StatefulWidget {
   const JSSettingComponent({Key? key}) : super(key: key);
 
@@ -43,7 +45,8 @@ class _JSSettingComponentState extends State<JSSettingComponent> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     jsGetSubTitle("CV").onTap((){
-                      JSCompleteProfileOneScreen().launch(context);
+                      List<User> kl = [];
+                      JSCompleteProfileOneScreen(kl: kl,).launch(context);
                     }),
                     jsGetSubTitle("Help Center"),
                     jsGetSubTitle("Browse Companies"),

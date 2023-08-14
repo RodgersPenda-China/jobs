@@ -21,7 +21,8 @@ import 'JSCompanyProfileScreens.dart';
 
 
 class CandidatesScreen extends StatefulWidget {
-  const CandidatesScreen({Key? key}) : super(key: key);
+  int id;
+   CandidatesScreen({Key? key,required this.id}) : super(key: key);
 
   @override
   _JSJobCompaniesState createState() => _JSJobCompaniesState();
@@ -38,7 +39,16 @@ class _JSJobCompaniesState extends State<CandidatesScreen> {
   bool loading = true; var companies = [];
 
   void init() async {
-    String url = "https://x.smartbuybuy.com/job/index.php?get_candidates=1";
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String url = '';
+    if(widget.id == 0) {
+      url = "https://x.smartbuybuy.com/job/index.php?get_candidates=1";
+    } else if(widget.id == 1) {
+      url = "https://x.smartbuybuy.com/job/index.php?get_my_candidates=1&token=${token}";
+    } else {
+      url = "https://x.smartbuybuy.com/job/index.php?get_my_applicants=1&token=${token}";
+    }
     setState(() {
       loading = true;
     });
@@ -95,9 +105,9 @@ class _JSJobCompaniesState extends State<CandidatesScreen> {
                   color: js_primaryColor,
                   width: context.width(),
                   onTap: () {
-                    JSJobSearchScreen().launch(context);
+                    CandidatesScreen(id: 0,).launch(context);
                   },
-                  child: Text("Find Companies", style: boldTextStyle(color: white)),
+                  child: Text("Find Candidates", style: boldTextStyle(color: white)),
                 ),
                 16.height,
                 Text("Do you want to search for salaries?", style: boldTextStyle(color: js_textColor.withOpacity(0.7), decoration: TextDecoration.underline), textAlign: TextAlign.center).center(),
@@ -148,7 +158,9 @@ class _JSJobCompaniesState extends State<CandidatesScreen> {
                 ),
                     baseColor: Colors.red, highlightColor: Colors.blue):
 
-                ListView.separated(
+               companies.length == 0?
+                   Center(child: Text('No Data Found'),)
+                   :ListView.separated(
                   itemCount: companies.length,
                   padding: EdgeInsets.all(8),
                   shrinkWrap: true,
@@ -162,7 +174,8 @@ class _JSJobCompaniesState extends State<CandidatesScreen> {
                       children: [
                         GestureDetector(
                           onTap: (){
-                            UserScreen(id: companies[index]['id']).launch(context);
+                            UserScreen(id: companies[index]['id'],applicant: widget.id == 2?1:0,
+                              job_id: widget.id == 2?companies[index]['job_id']:0.toString()).launch(context);
                           },
                           child: Row(
                             children: [
@@ -173,9 +186,16 @@ class _JSJobCompaniesState extends State<CandidatesScreen> {
                                 children: [
                                   Text(companies[index]['name'], style: boldTextStyle()),
                                   4.height,
+
                                   Row(
                                     children: [
-                                      Text('${companies[index]['work_experience']} Experince, ${companies[index]['education']} Education', style: secondaryTextStyle(color: js_textColor.withOpacity(0.7)))
+                                      Container(
+                                        width: 200,
+                                        child:
+                                        widget.id == 2? Text('Job: ${companies[index]['job']}', style: secondaryTextStyle(color: js_textColor.withOpacity(0.7)))
+                                        :Text('${companies[index]['work_experience']} Experince, ${companies[index]['education']} Education', style: secondaryTextStyle(color: js_textColor.withOpacity(0.7)))
+
+                                      )
                                     ],
                                   ),
                                 ],

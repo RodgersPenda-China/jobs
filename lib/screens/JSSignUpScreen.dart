@@ -17,6 +17,7 @@ import 'package:job_search/main.dart';
 import '../controller/home.dart';
 import '../utils/JSWidget.dart';
 import 'JSProfileScreen.dart';
+import 'JSSearchResultScreen.dart';
 
 class JSSignUpScreen extends StatefulWidget {
   int type;
@@ -179,13 +180,19 @@ class _JSSignUpScreenState extends State<JSSignUpScreen> {
                               ..showSnackBar(snackBar);
                           }
                           setState(() {loading = true;});
-                          Get.find<HomeController>().login_signup(email, password);
+                          int role  = 0;
+                          if(widget.type == 2){
+                            role = 1;
+                          }
+                         await Get.find<HomeController>().login_signup(role.toString(),email, password);
                           var bl = Get.find<HomeController>().login_response;
+
                           if(bl['error'] == 0){
                             //store token
                             final SharedPreferences prefs = await SharedPreferences.getInstance();
                             await prefs.setString('token', Get.find<HomeController>().login_response['token']);
-                            JSProfileScreen().launch(context);
+                            await prefs.setInt('role', role);
+                            JSSearchResultScreen().launch(context);
                           }
                          else if(bl['error'] == 1){
                             setState(() {loading = false;});

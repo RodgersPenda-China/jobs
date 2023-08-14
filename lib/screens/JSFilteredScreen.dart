@@ -110,11 +110,11 @@ class _JSFilteredScreenState extends State<JSFilteredScreen> {
                           icon: Icon(Icons.close)),
                     ),
                     TextButton(onPressed: () {}, child: Text("Filters", style: boldTextStyle())),
-                    TextButton(
-                        onPressed: () {
-                          finish(context);
-                        },
-                        child: Text("Reset", style: boldTextStyle(color: js_primaryColor))),
+                    // TextButton(
+                    //     onPressed: () {
+                    //       finish(context);
+                    //     },
+                    //     child: Text("Reset", style: boldTextStyle(color: js_primaryColor))),
                   ],
                 ).paddingOnly(left: 8, right: 8, bottom: 16),
               ),
@@ -125,7 +125,7 @@ class _JSFilteredScreenState extends State<JSFilteredScreen> {
                   children: [
                     Text("Category", style: boldTextStyle(size: 18)).paddingOnly(left: 16),
                     16.height,
-                    category_loading? Center(child: CircularProgressIndicator())
+                    category_loading? Center(child: CircularProgressIndicator(color: Colors.blue,))
                     :ListView.builder(
                         itemCount: category.length,
                         physics: NeverScrollableScrollPhysics(),
@@ -155,7 +155,7 @@ class _JSFilteredScreenState extends State<JSFilteredScreen> {
                     24.height,
                     Text("City", style: boldTextStyle(size: 18)).paddingOnly(left: 16),
                     16.height,
-                    city_loading? Center(child: CircularProgressIndicator()):
+                    city_loading? Center(child: CircularProgressIndicator(color: Colors.blue,)):
                     ListView.builder(
                         itemCount: city.length,
                         physics: NeverScrollableScrollPhysics(),

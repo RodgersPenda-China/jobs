@@ -8,6 +8,9 @@ import 'package:job_search/utils/JSConstant.dart';
 import 'package:job_search/utils/JSImage.dart';
 import 'package:job_search/main.dart';
 
+import '../screens/JSMessagesScreen.dart';
+import '../screens/JSSearchResultScreen.dart';
+
 Widget googleSignInWidget({String? loginLogo, String? btnName, Function? onTapBtn, double? logoHeight, double? logoWidth}) {
   return OutlinedButton(
     onPressed: () {
@@ -64,7 +67,7 @@ PreferredSizeWidget jsAppBar(BuildContext context, {VoidCallback? callBack, bool
       homeAction.validate()
           ? IconButton(
               onPressed: () {
-                JSHomeScreen().launch(context);
+                JSSearchResultScreen().launch(context);
               },
               icon: Icon(Icons.home, size: 24),
               color: appStore.iconColor)
@@ -88,7 +91,8 @@ PreferredSizeWidget jsAppBar(BuildContext context, {VoidCallback? callBack, bool
                     message.validate()
                         ? IconButton(
                             onPressed: () {
-                              //
+                              //JSMessagesScreen
+                              JSMessagesScreen().launch(context);
                             },
                             icon: Icon(Icons.message))
                         : SizedBox(),

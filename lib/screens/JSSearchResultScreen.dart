@@ -144,7 +144,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Row(
               children: [
-                filteredWidget(widget: Icon(Icons.filter_list,color:  Get.find<HomeController>().filter_category == ''?Colors.black:Colors.blue, size: 18)).cornerRadiusWithClipRRect(8).onTap(() {
+                filteredWidget(widget: Icon(Icons.filter_list,color:  Get.find<HomeController>().filter_category == ''?Colors.pink:Colors.blue, size: 18)).cornerRadiusWithClipRRect(8).onTap(() {
                   JSFilteredScreen(filter: fg,).launch(context);
                 }),
                 8.width,
@@ -547,13 +547,13 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                       ),
                                       subtitle: GestureDetector(
                                         onTap: (){
-                                          JSCompanyProfileScreens(id: jobs[i]['user_id'],).launch(context);
+                                          JSCompanyProfileScreens(id: jobs[i]['user_id'],employer: 0,).launch(context);
                                         },
                                         child:Text("Other ${jobs[i]['jobs']} Jobs"),
                                       ),
                                       title:GestureDetector(
                                         onTap: (){
-                                          JSCompanyProfileScreens(id: jobs[i]['user_id']).launch(context);
+                                          JSCompanyProfileScreens(id: jobs[i]['user_id'],employer: 0).launch(context);
 
                                         },
                                         child: Text(
@@ -563,7 +563,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
 
                                       trailing: GestureDetector(
                                         onTap: (){
-                                          JSCompanyProfileScreens(id: jobs[i]['user_id']).launch(context);
+                                          JSCompanyProfileScreens(id: jobs[i]['user_id'],employer: 0).launch(context);
 
                                         },
                                         child:Icon (
@@ -963,13 +963,13 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                               ),
                                               subtitle: GestureDetector(
                                                 onTap: (){
-                                                  JSCompanyProfileScreens(id:  Get.find<HomeController>().filter_array[i]['user_id'],).launch(context);
+                                                  JSCompanyProfileScreens(id:  Get.find<HomeController>().filter_array[i]['user_id'],employer: 0).launch(context);
                                                 },
                                                 child:Text("Other ${ Get.find<HomeController>().filter_array[i]['jobs']} Jobs"),
                                               ),
                                               title:GestureDetector(
                                                   onTap: (){
-                                                    JSCompanyProfileScreens(id:  Get.find<HomeController>().filter_array[i]['user_id']).launch(context);
+                                                    JSCompanyProfileScreens(id:  Get.find<HomeController>().filter_array[i]['user_id'],employer: 0).launch(context);
 
                                                   },
                                                   child: Text(
@@ -979,7 +979,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
 
                                               trailing: GestureDetector(
                                                   onTap: (){
-                                                    JSCompanyProfileScreens(id:  Get.find<HomeController>().filter_array[i]['user_id']).launch(context);
+                                                    JSCompanyProfileScreens(id:  Get.find<HomeController>().filter_array[i]['user_id'],employer: 0).launch(context);
 
                                                   },
                                                   child:Icon (

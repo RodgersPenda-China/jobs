@@ -50,7 +50,7 @@ class _JSSplashScreenState extends State<JSSplashScreen> {
     if(token == null || token == '') {
       JSSearchResultScreen().launch(context);
     } else {
-      JSProfileScreen().launch(context);
+      SelectScreen().launch(context);
     }
   }
 

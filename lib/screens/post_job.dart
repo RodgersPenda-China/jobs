@@ -15,11 +15,12 @@ import 'package:job_search/utils/JSWidget.dart';
 import 'package:job_search/main.dart';
 
 import '../controller/home.dart';
+import 'compamy.dart';
 
 
 class PostJob extends StatefulWidget {
-  var gongzuo = [];int edit;
-  PostJob({Key? key,required this.gongzuo,required this.edit}) : super(key: key);
+  var work = {};int edit;
+  PostJob({Key? key,required this.work,required this.edit}) : super(key: key);
 
   @override
   _JSCompleteProfileThreeScreenState createState() => _JSCompleteProfileThreeScreenState();
@@ -56,6 +57,28 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
   void initState() {
     super.initState();
     init();
+    if(widget.edit == 1){
+      title = widget.work['name'];
+      salary = widget.work['salary'];
+      experience = widget.work['experience'];
+      category = widget.work['category'];
+      work_type = widget.work['kind'];
+      city = widget.work['city'];
+      remoteValue = widget.work['remote'];
+      education = widget.work['education'];
+      Future.delayed(
+        const Duration(seconds: 8),
+            () {
+          print('here!!');
+          setState(
+                () {
+              controller.setText(widget.work['description']);
+
+            },
+          );
+        },
+      );
+    }
   }
 
   void init() async {
@@ -124,7 +147,9 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
             } else {
               //now we make a request
               setState(() {loading  = true;});
-               await Get.find<HomeController>().save_jobs(title, salary,experience,education,category,work_type,remoteValue,city,description);
+              String id = '';
+              if(widget.edit == 1){id = widget.work['id'];}
+               await Get.find<HomeController>().save_jobs(widget.edit.toString(),id,title, salary,experience,education,category,work_type,remoteValue,city,description);
               var results = Get.find<HomeController>().experience_reponse;
 
               if(results['error'] == 0){
@@ -141,6 +166,7 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
                 ScaffoldMessenger.of(context)
                   ..hideCurrentSnackBar()
                   ..showSnackBar(snackBar);
+                Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute( builder: (ctx) => EmployeeScreen()), (route) => false);
               } else {
 
                 if(results['error'] == 1){
@@ -193,8 +219,9 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
                       margin: EdgeInsets.only(top: 16),
                       decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
                       child: AppTextField(
+                        initialValue: title,
                         onChanged: (v){title = v;},
-                        controller: jobTitleController,
+                        //controller: jobTitleController,
                         focus: jobTitleFocus,
                         nextFocus: companyFocus,
                         textFieldType: TextFieldType.OTHER,
@@ -209,8 +236,10 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
                       margin: EdgeInsets.only(top: 16),
                       decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
                       child: AppTextField(
+                        initialValue: salary,
+                        keyboardType: TextInputType.number,
                         onChanged: (v){salary = v;},
-                        controller: companyController,
+                        //controller: companyController,
                         focus: companyFocus,
                         nextFocus: cityFocus,
                         textFieldType: TextFieldType.NAME,
@@ -224,6 +253,7 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
                       margin: EdgeInsets.only(top: 16),
                       decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
                       child: AppTextField(
+                        initialValue: experience,
                         keyboardType: TextInputType.number,
                         onChanged: (v){experience = v;},
                         // controller: companyController,
@@ -279,6 +309,7 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
                             showSearchBox: true
                         ),
                         asyncItems: (String filter) => Get.find<HomeController>().get_categories(),
+                        selectedItem: category,
                         onChanged: (print){
                           category = print!;
                         },
@@ -366,8 +397,9 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
                       margin: EdgeInsets.only(top: 16),
                       decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
                       child: AppTextField(
+                        initialValue: city,
                         onChanged: (v){city = v;},
-                        controller: cityController,
+                       // controller: cityController,
                         focus: cityFocus,
                         nextFocus: descriptionFocus,
                         textFieldType: TextFieldType.OTHER,

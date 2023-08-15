@@ -24,6 +24,7 @@ import 'package:job_search/main.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:galleryimage/galleryimage.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../components/JSReviewAndSaVeComponent.dart';
 import '../controller/home.dart';
 import '../model/user.dart';
@@ -68,6 +69,7 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
       user = _body;
       jobs = _body;
       user_loading = false;
+      // Get.find<HomeController>().user = UsersModel.fromJson(_body).user;
     });
     print('object');
   }
@@ -93,8 +95,8 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
         length: 4,
         child: Scaffold(
             key: scaffoldKey,
-            //drawer: JSDrawerScreen(),
-            appBar: jsAppBar(context, backWidget: true, homeAction: true, message: false, notifications: false, bottomSheet: true, callBack: () {
+            drawer: JSDrawerScreen(),
+            appBar: jsAppBar(context, backWidget: false, homeAction: true, message: false, notifications: false, bottomSheet: true, callBack: () {
               setState(() {});
               scaffoldKey.currentState!.openDrawer();
             }),
@@ -116,7 +118,7 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    PostJob(gongzuo:[],edit : 0).launch(context);
+                    PostJob(work:{},edit : 0).launch(context);
                   },
                   style: ElevatedButton.styleFrom(
                       primary: js_primaryColor,
@@ -206,7 +208,8 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                 width: 200,
                                 child:Text(user['long_name'], style: boldTextStyle(size: 22)),
                               ),
-                              IconButton(onPressed: (){
+                             Padding(padding: EdgeInsets.only(left: 0.0,top: 0.0,right: 10.0,bottom: 0.0),
+                              child: IconButton(onPressed: (){
                                User kv = User(id: user['id'], name: user['long_name'],
                                     gender: 'Male', phone: user['phone'],
                                     email: user['email'], location: user['location'],
@@ -217,7 +220,7 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                 List<User> users = [];
                                 users.add(kv);
                                 EditMoney(kl: users,).launch(context);
-                              }, icon: Icon(Icons.edit))
+                              }, icon: Icon(Icons.edit)))
                             ],
                           ),
                           Row(
@@ -227,13 +230,24 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                               Text(user['short_name'], style: boldTextStyle()),
                             ],
                           ),
-                          Row(
+                          GestureDetector(
+                            onTap: (){
+                              launchUrl(Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${user['location']}&destination_place_id=${user['place_id']}'
+                              ),mode: LaunchMode.externalNonBrowserApplication,);
+                            },
+                            child: Row(
                               children: [
                                 Icon(Icons.location_on, color:Theme.of(context).iconTheme.color),
                                 8.width,
-                                Text(user['location'], style: boldTextStyle(color: Colors.blue)),
+                                Container(
+                                  width: 100,
+                                  child:                                 Text(user['location'], style: boldTextStyle(color: Colors.blue)),
+
+                                )
                               ],
-                          ),
+                            ),
+                          )
+
                         ],
                       ).expand()
                     ],
@@ -343,7 +357,7 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                       Expanded(child:
                                     GestureDetector(
                                     onTap: () async {
-                                      CandidatesScreen(id: 1,).launch(context);
+                                       CandidatesScreen(id: 1,).launch(context);
 
                                     },child:
                                       Card(
@@ -399,34 +413,12 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text("new", style: primaryTextStyle(size: 14)),
-                                        Icon(
-                                          1 == 0 ? Icons.favorite : Icons.favorite_border,
-                                          size: 20,
-                                          color: 1 == 1
-                                              ? js_primaryColor
-                                              : appStore.isDarkModeOn
-                                              ? white
-                                              : black,
-                                        ).onTap(() {
-                                          //filteredResultsList[i].selectSkill = !filteredResultsList[i].selectSkill.validate();
-                                          setState(() {});
-                                        }),
-                                      ],
-                                    ),
                                     8.height,
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(jobs['job'][i]['name'], style: boldTextStyle()),
                                         8.width,
-                                        Icon(Icons.block, size: 20).onTap(() {
-                                          //filteredResultsList[i].isBlocked = !filteredResultsList[i].isBlocked.validate();
-                                          setState(() {});
-                                        }),
                                       ],
                                     ),
                                     4.height,
@@ -488,7 +480,7 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                       ],
                                     ),
                                     16.height,
-                                    Text('Today', style: secondaryTextStyle()),
+                                    Text(jobs['job'][i]['time'], style: secondaryTextStyle()),
                                   ],
                                 ),
                               ).onTap(() {
@@ -643,7 +635,7 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                               bottom: 8,
                                               child: AppButton(
                                                 onTap: () {
-                                                  PostJob(gongzuo: jobs['job'][i],edit: 1,).launch(context);
+                                                  PostJob(work: jobs['job'][i],edit: 1,).launch(context);
                                                 },
                                                 width: MediaQuery.of(context).size.width,
                                                 margin: EdgeInsets.all(16),

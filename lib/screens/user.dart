@@ -52,7 +52,9 @@ class _JSProfileScreenState extends State<UserScreen> {
   List<User> user = []; List<Work_Experience> work = [];bool user_loading = false;
   List<Education> edu = [];
   void init() async {
-    String url = "https://x.smartbuybuy.com/job/index.php?get_user=1&id=${widget.id}&token=843995707f1ab94b95e85477";
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String url = "https://x.smartbuybuy.com/job/index.php?get_user=1&id=${widget.id}&token=${token}";
     setState(() {
       loading = true; candidate_loading = true;
     });

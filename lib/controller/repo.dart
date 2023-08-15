@@ -30,16 +30,16 @@ class homeRepo {
   get_types() async{
     return await apiClient.getData('get_type=1');
   }
-  work_experience(String token,String title,String company,String position,String category,String work_type,String city,String from,String to,String description) async{
-    return await apiClient.postData('work_experience=1&token=${token}&title=${title}&company=${company}&position=${position}&category=${category}'
+  work_experience(String edit,id,token,String title,String company,String position,String category,String work_type,String city,String from,String to,String description) async{
+    return await apiClient.postData('work_experience=1&edit=${edit}&id=${id}&token=${token}&title=${title}&company=${company}&position=${position}&category=${category}'
         '&work_type=${work_type}&city=${city}&from=${from}&to=${to}',{'description':description});
   }
-  jobs(String token,title, salary,experience,education,category,work_type,remoteValue,city,description) async{
-    return await apiClient.postData('jobs=1&token=${token}&title=${title}&salary=${salary}&experience=${experience}&category=${category}'
+  jobs(String edit,id,token,title, salary,experience,education,category,work_type,remoteValue,city,description) async{
+    return await apiClient.postData('jobs=1&edit=${edit}&id=${id}&token=${token}&title=${title}&salary=${salary}&experience=${experience}&category=${category}'
         '&work_type=${work_type}&city=${city}&edu=${education}&remote=${remoteValue}',{'description':description});
   }
-  education(String token,String title,String company,String position,String category,String work_type,String city,String from,String to,String description) async{
-    return await apiClient.postData('education=1&token=${token}&title=${title}&school=${company}&degree=${position}&category=${category}'
+  education(String edit,id,String token,String title,String company,String position,String category,String work_type,String city,String from,String to,String description) async{
+    return await apiClient.postData('education=1&token=${token}&edit=${edit}&id=${id}&title=${title}&school=${company}&degree=${position}&category=${category}'
         '&work_type=${work_type}&city=${city}&from=${from}&to=${to}',{'description':description});
   }
   personal_details(String token,String f_name,String l_name,String gender,String phone,String location,String place_id,List<MultipartBody> image) async {

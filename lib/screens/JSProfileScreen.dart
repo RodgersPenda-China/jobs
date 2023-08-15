@@ -46,7 +46,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
     super.initState();
     init();
    // Get.find<HomeController>().get_user();
-   //  Get.find<HomeController>().get_cv();
+    //Get.find<HomeController>().get_cv();
   }
 
   List<User> user = []; List<Work_Experience> work = [];bool user_loading = false;
@@ -55,9 +55,6 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String url = "https://x.smartbuybuy.com/job/index.php?get_user=1&token=${token}";
-    setState(() {
-      loading = true; candidate_loading = true;
-    });
     Get.find<HomeController>().user_loading = true;
     print(url);
     final response = await http.get(Uri.parse(url));
@@ -69,11 +66,256 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
     Get.find<HomeController>().edu = UsersModel.fromJson(_body).education;
     Get.find<HomeController>().user_loading = false;
      });
-    Get.find<HomeController>().user_loading = false;
+    String uri = "https://x.smartbuybuy.com/job/index.php?get_cv=1&token=${token}";
+    Get.find<HomeController>().cv_loading = true;
+    final res = await http.get(Uri.parse(uri));
+    setState(() {
+      Get.find<HomeController>().cvs = json.decode(res.body);
+      Get.find<HomeController>().cv_loading = false;
+    });
 
   print(Get.find<HomeController>().user[0].gender);
 
   }
+  Future kl(BuildContext context,Work_Experience work){
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+      ),
+      builder: (context) {
+        return
+          FractionallySizedBox(
+            heightFactor: 0.90,
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              width: 30,
+                              height: 5,
+                              decoration: boxDecorationWithRoundedCorners(
+                                borderRadius: BorderRadius.circular(4),
+                                backgroundColor: appStore.isDarkModeOn ? white : black,
+                              ),
+                              alignment: Alignment.center,
+                              margin: EdgeInsets.only(top: 16, left: 24),
+                            ),
+                          ).expand(),
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: IconButton(
+                              onPressed: () {
+                                finish(context);
+                              },
+                              padding: EdgeInsets.all(16),
+                              icon: Icon(Icons.file_upload_outlined, size: 26),
+                              alignment: Alignment.topRight,
+                            ),
+                          ),
+                        ],
+                      ),
+                      32.height,
+                      Text( work.title, style: boldTextStyle(size: 22)),
+                      8.height,
+                      Text('Position: '+ work.position, style: primaryTextStyle()),
+                      8.height,
+                      Text('${ work.work_from} - ${work.work_to}', style: primaryTextStyle()),
+                      8.height,
+
+                      24.height,
+                      Text("Job details", style: boldTextStyle(size: 20)),
+                      16.height,
+                      Text("Company & Location", style: boldTextStyle()),
+                      4.height,
+                      Text('${ work.company}', style: primaryTextStyle()),
+                      4.height,
+                      Text('Location: ${ work.city}', style: primaryTextStyle(color: Colors.blue)),
+                      16.height,
+                      Text("Job type", style: boldTextStyle()),
+                      4.height,
+                      jsGetPrimaryTitle( work.work_type),
+                      4.height,
+                      jsGetPrimaryTitle( work.category)
+                      ,4.height,
+                      Divider(),
+                      16.height,
+                      Text("Full Job Description", style: boldTextStyle(size: 20)),
+                      16.height,
+                      HtmlWidget(
+                        // the first parameter (`html`) is required
+                        work.description,
+
+                        // all other parameters are optional, a few notable params:
+
+                        // specify custom styling for an element
+                        // see supported inline styling below
+                        customStylesBuilder: (element) {
+                          //if (element.classes.contains('foo')) {
+                          return {'fontSize': '60'};
+                          // }
+
+                          return null;
+                        },
+
+
+                        // these callbacks are called when a complicated element is loading
+                        // or failed to render allowing the app to render progress indicator
+                        // and fallback widget
+                        onErrorBuilder: (context, element, error) => Text('$element error: $error'),
+                        onLoadingBuilder: (context, element, loadingProgress) => CircularProgressIndicator(),
+
+                        // this callback will be triggered when user taps a link
+                        // onTapUrl: (url) => print('tapped $url'),
+
+                        // select the render mode for HTML body
+                        // by default, a simple `Column` is rendered
+                        // consider using `ListView` or `SliverList` for better performance
+                        renderMode: RenderMode.column,
+
+                        // set the default styling for text
+                        textStyle: TextStyle(fontSize: 15),
+
+                        // turn on `webView` if you need IFRAME support (it's disabled by default)
+                        //webView: true,
+                      ),
+                    ],
+                  ).paddingOnly(left: 16,right: 16,bottom: 80),
+                ),
+              ],
+            ),
+          );
+      },
+    );
+  }
+  Future ed(BuildContext context,Education work){
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+      ),
+      builder: (context) {
+        return
+          FractionallySizedBox(
+            heightFactor: 0.90,
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              width: 30,
+                              height: 5,
+                              decoration: boxDecorationWithRoundedCorners(
+                                borderRadius: BorderRadius.circular(4),
+                                backgroundColor: appStore.isDarkModeOn ? white : black,
+                              ),
+                              alignment: Alignment.center,
+                              margin: EdgeInsets.only(top: 16, left: 24),
+                            ),
+                          ).expand(),
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: IconButton(
+                              onPressed: () {
+                                finish(context);
+                              },
+                              padding: EdgeInsets.all(16),
+                              icon: Icon(Icons.file_upload_outlined, size: 26),
+                              alignment: Alignment.topRight,
+                            ),
+                          ),
+                        ],
+                      ),
+                      32.height,
+                      Text( work.title, style: boldTextStyle(size: 22)),
+                      8.height,
+                      Text('Degree: '+ work.degree, style: primaryTextStyle()),
+                      8.height,
+                      Text('${ work.learn_from} - ${work.learn_to}', style: primaryTextStyle()),
+                      8.height,
+
+                      24.height,
+                      Text("Job details", style: boldTextStyle(size: 20)),
+                      16.height,
+                      Text("School & Location", style: boldTextStyle()),
+                      4.height,
+                      Text('${ work.school}', style: primaryTextStyle()),
+                      4.height,
+                      Text('Location: ${ work.city}', style: primaryTextStyle(color: Colors.blue)),
+                      16.height,
+                      Text("Job type", style: boldTextStyle()),
+                      4.height,
+                      jsGetPrimaryTitle( work.school_type),
+                      4.height,
+                      jsGetPrimaryTitle( work.category)
+                      ,4.height,
+                      Divider(),
+                      16.height,
+                      Text("Full Job Description", style: boldTextStyle(size: 20)),
+                      16.height,
+                      HtmlWidget(
+                        // the first parameter (`html`) is required
+                        work.description,
+
+                        // all other parameters are optional, a few notable params:
+
+                        // specify custom styling for an element
+                        // see supported inline styling below
+                        customStylesBuilder: (element) {
+                          //if (element.classes.contains('foo')) {
+                          return {'fontSize': '60'};
+                          // }
+
+                          return null;
+                        },
+
+
+                        // these callbacks are called when a complicated element is loading
+                        // or failed to render allowing the app to render progress indicator
+                        // and fallback widget
+                        onErrorBuilder: (context, element, error) => Text('$element error: $error'),
+                        onLoadingBuilder: (context, element, loadingProgress) => CircularProgressIndicator(),
+
+                        // this callback will be triggered when user taps a link
+                        // onTapUrl: (url) => print('tapped $url'),
+
+                        // select the render mode for HTML body
+                        // by default, a simple `Column` is rendered
+                        // consider using `ListView` or `SliverList` for better performance
+                        renderMode: RenderMode.column,
+
+                        // set the default styling for text
+                        textStyle: TextStyle(fontSize: 15),
+
+                        // turn on `webView` if you need IFRAME support (it's disabled by default)
+                        //webView: true,
+                      ),
+                    ],
+                  ).paddingOnly(left: 16,right: 16,bottom: 80),
+                ),
+              ],
+            ),
+          );
+      },
+    );
+  }
+
 
   @override
   void setState(fn) {
@@ -271,7 +513,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                                  size: 45
                              ),
                                    title: Text(
-                                     authController.cvs[i].split(".").last,
+                                     authController.cvs[i],
                                      style: TextStyle(fontSize: 20),
                                    ),
                                    trailing: Icon (
@@ -446,7 +688,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                           children: [
                             Text("Work Experience", style: secondaryTextStyle(size: 18)),
                             IconButton(onPressed: () {
-                              WorkExperience().launch(context);
+                              WorkExperience(work: [],edit: 0,).launch(context);
                             }, icon: Icon(Icons.add_circle_outline, color: js_primaryColor)),
                           ],
                         ),
@@ -462,7 +704,10 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                                   Text(authController.work[i].title, style: boldTextStyle()),
                                   Row(
                                     children: [
-                                      IconButton(onPressed: () {}, icon: Icon(Icons.edit, color: js_primaryColor)),
+                                      IconButton(onPressed: () {
+                                        WorkExperience(work: authController.work,edit: 1,).launch(context);
+                                      }, icon: Icon(Icons.edit, color: js_primaryColor)),
+                                      IconButton(onPressed: () {kl(context,authController.work[i]);}, icon: Icon(Icons.remove_red_eye, color: js_primaryColor)),
                                       IconButton(onPressed: () {}, icon: Icon(Icons.delete, color: js_primaryColor)),
                                     ],
                                   ),
@@ -480,7 +725,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text("Education", style: secondaryTextStyle(size: 18)),
-                            IconButton(onPressed: () {EducationScreen().launch(context);}, icon: Icon(Icons.add_circle_outline, color: js_primaryColor)),
+                            IconButton(onPressed: () {EducationScreen(work: [],edit: 0,).launch(context);}, icon: Icon(Icons.add_circle_outline, color: js_primaryColor)),
                           ],
                         ),
                         Divider(height: 0, color: gray.withOpacity(0.2)),
@@ -495,7 +740,8 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                                     Text(authController.edu[i].title, style: boldTextStyle()),
                                     Row(
                                       children: [
-                                        IconButton(onPressed: () {}, icon: Icon(Icons.edit, color: js_primaryColor)),
+                                        IconButton(onPressed: () {EducationScreen(work: authController.edu,edit: 1,).launch(context);}, icon: Icon(Icons.edit, color: js_primaryColor)),
+                                        IconButton(onPressed: () {ed(context,authController.edu[i]);}, icon: Icon(Icons.remove_red_eye, color: js_primaryColor)),
                                         IconButton(onPressed: () {}, icon: Icon(Icons.delete, color: js_primaryColor)),
                                       ],
                                     ),

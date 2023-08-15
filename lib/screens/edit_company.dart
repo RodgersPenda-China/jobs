@@ -21,6 +21,7 @@ import 'package:job_search/main.dart';
 
 import '../controller/api.dart';
 import '../controller/home.dart';
+import 'compamy.dart';
 
 
 class EditMoney extends StatefulWidget {
@@ -63,8 +64,9 @@ class _JSCompleteProfileOneScreenState extends State<EditMoney> {
       location = widget.kl[0].location;
       i_image = widget.kl[0].image;
       Future.delayed(
-        const Duration(seconds: 4),
+        const Duration(seconds: 8),
             () {
+          print('here!!');
           setState(
                 () {
               controller.setText(widget.kl[0].description);
@@ -224,42 +226,43 @@ class _JSCompleteProfileOneScreenState extends State<EditMoney> {
                       ),
                     ),
                     24.height,
-                    Text("Photos*", style: boldTextStyle()),
-                    Row(
-                      children: [
-                        for(int i = 0; i < images.length;i++)
-                        Expanded(child:
-                        Container(
-                          width: 100,
-                            child:
-                        Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)
-                          ),
-                          child: Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Icon(Icons.close),
-                                images[i].runtimeType.toString() == 'String'?
-                                CachedNetworkImage(
-                                  imageUrl: images[i],
-                                  progressIndicatorBuilder: (context, url, downloadProgress) =>
-                                      CircularProgressIndicator(value: downloadProgress.progress),
-                                  errorWidget: (context, url, error) => Icon(Icons.error),
-                                )
-
-                                    :Image.file(images[i])
-                              ],
-                            ),
-                          ),
-                        ))),
-
-                      ],
-                    ),
+                    // Text("Photos (Maximum: 4)*", style: boldTextStyle()),
+                    // Row(
+                    //   children: [
+                    //     for(int i = 0; i < images.length;i++)
+                    //     Expanded(child:
+                    //     Container(
+                    //       width: 100,
+                    //         child:
+                    //     Card(
+                    //       elevation: 2,
+                    //       shape: RoundedRectangleBorder(
+                    //           borderRadius: BorderRadius.circular(8)
+                    //       ),
+                    //       child: Center(
+                    //         child: Column(
+                    //           mainAxisSize: MainAxisSize.min,
+                    //           children: <Widget>[
+                    //             Icon(Icons.close),
+                    //             images[i].runtimeType.toString() == 'String'?
+                    //             CachedNetworkImage(height: 100,
+                    //               imageUrl: images[i],
+                    //               progressIndicatorBuilder: (context, url, downloadProgress) =>
+                    //                   CircularProgressIndicator(value: downloadProgress.progress),
+                    //               errorWidget: (context, url, error) => Icon(Icons.error),
+                    //             )
+                    //
+                    //                 :Image.file(images[i],height: 100,)
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ))),
+                    //
+                    //   ],
+                    // ),
                        Center( child: ElevatedButton(onPressed: () async {
                          //upload pictures
+                         if(images.length > 4){return;}
                          FilePickerResult? result = await FilePicker.platform.pickFiles();
 
 
@@ -352,7 +355,7 @@ class _JSCompleteProfileOneScreenState extends State<EditMoney> {
                             error = true; message = 'Last Name Is Empty';
                           } else if(phone.length != 10){
                             error = true; message = 'Phone Number Shoube Be 10 Digits';
-                          }else if(has_image == false){
+                          }else if(has_image == false && widget.kl[0].image == ''){
                             error = true; message = 'Image Not Selected';
                           }
                           var place = {};
@@ -378,11 +381,13 @@ class _JSCompleteProfileOneScreenState extends State<EditMoney> {
                                 place_id = jk[i]['place_id'];
                               }
                             }
-                            print(location);
+                            print(place_id);
 
                             //cover the image to an uploadable format
                             List<MultipartBody> files = [];
-                            files.add(MultipartBody('0',image));
+                            if(has_image == true) {
+                              files.add(MultipartBody('0', image));
+                            }
                             setState(() {loading = true;});
                             await Get.find<HomeController>().personal_details(f_name,l_name,gender,phone,location,place_id,files);
                             var results = Get.find<HomeController>().personal_reponse;
@@ -400,6 +405,7 @@ class _JSCompleteProfileOneScreenState extends State<EditMoney> {
                               ScaffoldMessenger.of(context)
                                 ..hideCurrentSnackBar()
                                 ..showSnackBar(snackBar);
+                              Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute( builder: (ctx) => EmployeeScreen()), (route) => false);
                             } else {
                               final snackBar = SnackBar(
                                 elevation: 0,

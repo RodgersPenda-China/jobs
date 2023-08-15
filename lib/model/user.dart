@@ -70,11 +70,11 @@ class Education{
     title: json["title"] ?? 'Please Edit',
     school: json["school"] ?? 'Please Edit',
     learn_from: json["learn_from"] ?? 'Please Edit',
-    learn_to: json["learn_to"] ?? 'Please Edit',
+    learn_to: json["learn_to"] ?? '',
     degree: json["degree"] ?? 'Please Edit',
     description: json["description"] ?? 'Please Edit',
     city: json["city"] ?? 'Please Edit',
     category: json["category"] ?? 'Please Edit',
-    school_type: json["work_type"] ?? 'Please Edit',
+    school_type: json["school_type"] ?? 'Please Edit',
   );
 }

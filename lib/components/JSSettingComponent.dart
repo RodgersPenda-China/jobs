@@ -36,43 +36,43 @@ class _JSSettingComponentState extends State<JSSettingComponent> {
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       children: [
-        ExpansionTile(
-          title: jsGetTitle("Jobseekers"),
-          children: <Widget>[
-            Align(
-                alignment: Alignment.topLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    jsGetSubTitle("CV").onTap((){
-                      List<User> kl = [];
-                      JSCompleteProfileOneScreen(kl: kl,).launch(context);
-                    }),
-                    jsGetSubTitle("Help Center"),
-                    jsGetSubTitle("Browse Companies"),
-                    jsGetSubTitle("career advice"),
-                    jsGetSubTitle("Work at Indeed"),
-                    jsGetSubTitle("Browse Jobs"),
-                  ],
-                )),
-          ],
-        ),
-        ExpansionTile(
-          title: jsGetTitle("Employers"),
-          children: <Widget>[
-            Align(
-              alignment: Alignment.topLeft,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  jsGetSubTitle("Post a job"),
-                  jsGetSubTitle("Help Center"),
-                  jsGetSubTitle("Indeed Events"),
-                ],
-              ),
-            ),
-          ],
-        ),
+        // ExpansionTile(
+        //   title: jsGetTitle("Jobseekers"),
+        //   children: <Widget>[
+        //     Align(
+        //         alignment: Alignment.topLeft,
+        //         child: Column(
+        //           crossAxisAlignment: CrossAxisAlignment.start,
+        //           children: <Widget>[
+        //             jsGetSubTitle("CV").onTap((){
+        //               List<User> kl = [];
+        //               JSCompleteProfileOneScreen(kl: kl,).launch(context);
+        //             }),
+        //             jsGetSubTitle("Help Center"),
+        //             jsGetSubTitle("Browse Companies"),
+        //             jsGetSubTitle("career advice"),
+        //             jsGetSubTitle("Work at Indeed"),
+        //             jsGetSubTitle("Browse Jobs"),
+        //           ],
+        //         )),
+        //   ],
+        // ),
+        // ExpansionTile(
+        //   title: jsGetTitle("Employers"),
+        //   children: <Widget>[
+        //     Align(
+        //       alignment: Alignment.topLeft,
+        //       child: Column(
+        //         crossAxisAlignment: CrossAxisAlignment.start,
+        //         children: <Widget>[
+        //           jsGetSubTitle("Post a job"),
+        //           jsGetSubTitle("Help Center"),
+        //           jsGetSubTitle("Indeed Events"),
+        //         ],
+        //       ),
+        //     ),
+        //   ],
+        // ),
         ExpansionTile(
           title: jsGetTitle("About"),
           children: <Widget>[
@@ -82,31 +82,16 @@ class _JSSettingComponentState extends State<JSSettingComponent> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   jsGetSubTitle("About"),
+                  jsGetSubTitle("Privacy"),
+                  jsGetSubTitle("Terms"),
+                  jsGetSubTitle("Cookies"),
                 ],
               ),
             ),
           ],
         ),
         16.height,
-        Text("@2022 Indeed", style: primaryTextStyle()).paddingOnly(left: 16),
-        8.height,
-        Row(
-          children: [
-            Text("Accessibility at Indeed", style: primaryTextStyle(size: 14)).paddingOnly(left: 16),
-            16.width,
-            Text("Privacy Center", style: primaryTextStyle(size: 14)),
-            16.width,
-            Text("Cookies", style: primaryTextStyle(size: 14)),
-          ],
-        ),
-        8.height,
-        Row(
-          children: [
-            Text("Privacy", style: primaryTextStyle()).paddingOnly(left: 16),
-            16.width,
-            Text("Terms", style: primaryTextStyle()),
-          ],
-        ),
+        Text("@2023 Yanga Jobs", style: primaryTextStyle()).paddingOnly(left: 16),
       ],
     );
   }

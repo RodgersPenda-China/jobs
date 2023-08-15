@@ -9,6 +9,7 @@ import 'package:job_search/utils/JSImage.dart';
 import 'package:job_search/utils/JSWidget.dart';
 import 'package:job_search/main.dart';
 
+import '../components/JSDrawerScreen.dart';
 import '../utils/JSWidget.dart';
 import 'JSSignUpScreen.dart';
 
@@ -25,6 +26,7 @@ class _JSSignUpScreenState extends State<SelectScreen> {
     super.initState();
     init();
   }
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
   void init() async {
     //
@@ -38,60 +40,53 @@ class _JSSignUpScreenState extends State<SelectScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: Container(
-          height: 100,
-          color: appStore.isDarkModeOn ? scaffoldDarkColor : js_backGroundColor,
-          child:
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      // floatingActionButton: ,
+      key: scaffoldKey,
+      drawer: JSDrawerScreen(),
+      appBar: jsAppBar(context, notifications: false, message: false, bottomSheet: true, backWidget: false, homeAction: false, callBack: () {
+        setState(() {});
+        scaffoldKey.currentState!.openDrawer();
+      }),
+      body:
+          Column(
             children: [
-              Positioned(
-                left: 16,
-                right: 16,
-                bottom: 60,
-                child: AppButton(
-                  color: js_primaryColor,
-                  onTap: () async {
-                    JSSignUpScreen(type: 1,).launch(context);
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Employee", style: boldTextStyle(color: white)),
-                      8.width,
-                      Icon(Icons.person, color: white, size: iconSize),
-                    ],
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 16,
-                right: 16,
-                bottom: 60,
-                child: AppButton(
-                  color: js_primaryColor,
-                  onTap: () async {
-                    JSSignUpScreen(type: 2,).launch(context);
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Employer", style: boldTextStyle(color: white)),
-                      8.width,
-                      Icon(Icons.business, color: white, size: iconSize),
-                    ],
-                  ),
-                ),
+              Center( child: Image.asset('images/jobSearch/hiring.png')),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [AppButton(
+                      color: js_primaryColor,
+                      onTap: () async {
+                        JSSignUpScreen(type: 1,).launch(context);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Employee", style: boldTextStyle(color: white)),
+                          8.width,
+                          Icon(Icons.person, color: white, size: iconSize),
+                        ],
+                      ),
+                    ),
+                  AppButton(
+                      color: js_primaryColor,
+                      onTap: () async {
+                        JSSignUpScreen(type: 2,).launch(context);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Employer", style: boldTextStyle(color: white)),
+                          8.width,
+                          Icon(Icons.business, color: white, size: iconSize),
+                        ],
+                      ),
+                    ),
+                ],
               )
             ],
           )
-      ),
-      body: Stack(
-        children: [
-          Center(
-              child: Image.asset('images/jobSearch/hiring.png')
 
-          ),
+
 
 
 
@@ -195,8 +190,7 @@ class _JSSignUpScreenState extends State<SelectScreen> {
           //     ),
           //   ),
           // )
-        ],
-      ),
+
     );
   }
 }

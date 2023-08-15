@@ -48,19 +48,15 @@ class _JSSignUpScreenState extends State<JSSignUpScreen> {
     return Scaffold(
       appBar: jsAppBar(context, backWidget: true, homeAction: true),
 
-      body: Stack(
-        children: [
+      body: SingleChildScrollView(
+        child: Column( children:[
 
           Container(color: appStore.isDarkModeOn ? scaffoldDarkColor : js_backGroundColor),
           Align(
             alignment: Alignment.topCenter,
             child: Image.asset(js_SplashImage, height: 100, color: appStore.isDarkModeOn ? white : js_primaryColor),
           ),
-          Positioned(
-            top: 95,
-            left: 0,
-            right: 0,
-            child: Container(
+          Container(
               // height: context.height() * 0.7,
               padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 80),
               margin: EdgeInsets.only(bottom: 16),
@@ -123,11 +119,7 @@ class _JSSignUpScreenState extends State<JSSignUpScreen> {
                       ),
                     ),
                     16.height,
-                    Positioned(
-                      left: 16,
-                      right: 16,
-                      bottom: 60,
-                      child: AppButton(
+                    AppButton(
                         color: js_primaryColor,
                         onTap: () async {
                           //give an error on invalid details
@@ -192,6 +184,7 @@ class _JSSignUpScreenState extends State<JSSignUpScreen> {
                             final SharedPreferences prefs = await SharedPreferences.getInstance();
                             await prefs.setString('token', Get.find<HomeController>().login_response['token']);
                             await prefs.setInt('role', role);
+                            await prefs.setString('email', email);
                             JSSearchResultScreen().launch(context);
                           }
                          else if(bl['error'] == 1){
@@ -227,14 +220,14 @@ class _JSSignUpScreenState extends State<JSSignUpScreen> {
                           ],
                         )
                       ),
-                    )
+                   // )
                   ],
                 ),
               ),
             ),
-          ),
 
-        ],
+
+        ]),
       ),
     );
   }

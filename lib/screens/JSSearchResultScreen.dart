@@ -706,7 +706,8 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                                         onTap: () async {
                                                           EasyLoading.show(status: 'Applying...');
                                                           //apply
-                                                          String cv_id = cv_body[index]['id']; String job_id =  Get.find<HomeController>().filter_array[i]['id'];
+                                                          print(Get.find<HomeController>().filter_array.toString());
+                                                          String cv_id = cv_body[index]['id']; String job_id =  jobs[i]['id'];
                                                           String url = "https://x.smartbuybuy.com/job/index.php?apply=1&token=${token}&cv_id=${cv_id}&job=${job_id}";
                                                           setState(() {
                                                             job_apply = true;

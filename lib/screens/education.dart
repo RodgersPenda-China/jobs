@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:intl/intl.dart';
+import 'package:job_search/model/user.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:job_search/components/JSDrawerScreen.dart';
 import 'package:job_search/screens/JSAddSkillFourScreen.dart';
@@ -18,7 +19,8 @@ import '../controller/home.dart';
 
 
 class EducationScreen extends StatefulWidget {
-  EducationScreen({Key? key}) : super(key: key);
+  List<Education> work; int edit;
+  EducationScreen({Key? key,required this.work,required this.edit}) : super(key: key);
 
   @override
   _JSCompleteProfileThreeScreenState createState() => _JSCompleteProfileThreeScreenState();
@@ -54,6 +56,29 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
   void initState() {
     super.initState();
     init();
+    if(widget.edit == 1){
+      title = widget.work[0].title;
+      company = widget.work[0].school;
+      position = widget.work[0].degree;
+      category = widget.work[0].category;
+      work_type = widget.work[0].school_type;
+      city = widget.work[0].city;
+      from = widget.work[0].learn_from;
+      if(widget.work[0].learn_to == ''){_value = true;work_here = true;} else {to = widget.work[0].learn_from;}
+      Future.delayed(
+        const Duration(seconds: 8),
+            () {
+          print('here!!');
+          setState(
+                () {
+              controller.setText(widget.work[0].description);
+
+            },
+          );
+        },
+      );
+    }
+    print(widget.work[0].school_type); print('School Here');
   }
 
   void init() async {
@@ -136,7 +161,9 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
             } else {
               //now we make a request
               setState(() {loading  = true;});
-              await Get.find<HomeController>().education(title, company,degree_type,category,work_type,city,from,to,description);
+              String id = '';
+              if(widget.work.length != 0){id = widget.work[0].id;}
+              await Get.find<HomeController>().education(widget.edit.toString(),id,title, company,degree_type,category,work_type,city,from,to,description);
               var results = Get.find<HomeController>().education_response;
 
               if(results['error'] == 0){
@@ -205,8 +232,9 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
                       margin: EdgeInsets.only(top: 16),
                       decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
                       child: AppTextField(
+                        initialValue: title,
                         onChanged: (v){title = v;},
-                        controller: jobTitleController,
+                        //controller: jobTitleController,
                         focus: jobTitleFocus,
                         nextFocus: companyFocus,
                         textFieldType: TextFieldType.OTHER,
@@ -221,8 +249,9 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
                       margin: EdgeInsets.only(top: 16),
                       decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
                       child: AppTextField(
+                        initialValue: company,
                         onChanged: (v){company = v;},
-                        controller: companyController,
+                        // controller: companyController,
                         focus: companyFocus,
                         nextFocus: cityFocus,
                         textFieldType: TextFieldType.NAME,
@@ -267,6 +296,7 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
                             showSearchBox: true
                         ),
                         asyncItems: (String filter) => Get.find<HomeController>().get_categories(),
+                        selectedItem: category,
                         onChanged: (print){
                           category = print!;
                         },
@@ -322,8 +352,9 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
                       margin: EdgeInsets.only(top: 16),
                       decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
                       child: AppTextField(
+                        initialValue: city,
                         onChanged: (v){city = v;},
-                        controller: cityController,
+                        // controller: cityController,
                         focus: cityFocus,
                         nextFocus: descriptionFocus,
                         textFieldType: TextFieldType.OTHER,

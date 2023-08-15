@@ -64,28 +64,28 @@ class HomeController extends GetxController implements GetxService {
     return categories;
   }
   var experience_reponse = {};
-  work_experience(String title,String company,String position,String category,String work_type,String city,String from,String to,String description) async{
+  work_experience(String edit,id,title,String company,String position,String category,String work_type,String city,String from,String to,String description) async{
     experience_reponse = {};
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    Response response = await HomeRepo.work_experience(token!, title, company, position, category, work_type, city, from, to, description);
+    Response response = await HomeRepo.work_experience(edit,id,token!, title, company, position, category, work_type, city, from, to, description);
     experience_reponse = response.body;
     update();
   }
-  save_jobs(String title, salary,experience,education,category,work_type,remoteValue,city,description) async{
+  save_jobs(String edit,id,title, salary,experience,education,category,work_type,remoteValue,city,description) async{
     experience_reponse = {};
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    Response response = await HomeRepo.jobs(token!, title, salary,experience,education,category,work_type,remoteValue,city,description);
+    Response response = await HomeRepo.jobs(edit,id,token!, title, salary,experience,education,category,work_type,remoteValue,city,description);
     experience_reponse = response.body;
     update();
   }
   var education_response = {};
-  education(String title,String company,String position,String category,String work_type,String city,String from,String to,String description) async{
+  education(String edit,id,String title,String company,String position,String category,String work_type,String city,String from,String to,String description) async{
     education_response = {};
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    Response response = await HomeRepo.education(token!, title, company, position, category, work_type, city, from, to, description);
+    Response response = await HomeRepo.education(edit,id,token!, title, company, position, category, work_type, city, from, to, description);
     education_response = response.body;
     update();
   }
@@ -103,6 +103,7 @@ class HomeController extends GetxController implements GetxService {
     Response response = await HomeRepo.get_cv(token!);
     cvs = response.body;
     cv_loading = false;
+    print('cv here');
     update();
   }
   var jobs = []; bool jobs_loading = false;

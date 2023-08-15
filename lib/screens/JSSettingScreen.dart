@@ -20,9 +20,13 @@ class _JSSettingScreenState extends State<JSSettingScreen> {
     super.initState();
     init();
   }
-
+  String email = 'Please Login';
   void init() async {
-    //
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if(token != null && token != ''){
+      email = prefs.getString('token')!;
+    }
   }
 
   @override
@@ -35,7 +39,7 @@ class _JSSettingScreenState extends State<JSSettingScreen> {
     return Scaffold(
       key: scaffoldKey,
       drawer: JSDrawerScreen(),
-      appBar: jsAppBar(context, notifications: true, message: true, bottomSheet: true, backWidget: true, homeAction: true, callBack: () {
+      appBar: jsAppBar(context, notifications: false, message: false, bottomSheet: false, backWidget: true, homeAction: false, callBack: () {
         setState(() {});
         scaffoldKey.currentState!.openDrawer();
       }),
@@ -50,21 +54,26 @@ class _JSSettingScreenState extends State<JSSettingScreen> {
             children: [
               Divider(height: 0),
               8.height,
-              SettingItemWidget(
-                title: "Account Settings",
-                titleTextStyle: boldTextStyle(size: 18),
-                subTitle: "Contact information and password",
-                leading: Icon(Icons.person),
-                trailing: Icon(Icons.arrow_forward_ios, size: 18),
-              ),
-              Divider(height: 0),
-              SettingItemWidget(
-                title: "Privacy Settings",
-                titleTextStyle: boldTextStyle(size: 18),
-                subTitle: "Information about Indeed privacy settings",
-                leading: Icon(Icons.lock_sharp),
-                trailing: Icon(Icons.arrow_forward_ios, size: 18),
-              ),
+              email == 'Please Login'?SizedBox():Column(
+               children: [
+                 SettingItemWidget(
+                   title: "Account Settings",
+                   titleTextStyle: boldTextStyle(size: 18),
+                   subTitle: "Contact information and password",
+                   leading: Icon(Icons.person),
+                   trailing: Icon(Icons.arrow_forward_ios, size: 18),
+                 ),
+                 Divider(height: 0),
+                 SettingItemWidget(
+                   title: "Privacy Settings",
+                   titleTextStyle: boldTextStyle(size: 18),
+                   subTitle: "Information about Indeed privacy settings",
+                   leading: Icon(Icons.lock_sharp),
+                   trailing: Icon(Icons.arrow_forward_ios, size: 18),
+                 ),
+               ],
+             ),
+
               16.height,
               ListTile(
                 minLeadingWidth: 0,
@@ -72,8 +81,9 @@ class _JSSettingScreenState extends State<JSSettingScreen> {
                 leading: Icon(Icons.dark_mode, size: 26, color: context.iconColor),
                 trailing: Switch(
                   value: appStore.isDarkModeOn,
-                  onChanged: (bool value) {
+                  onChanged: (bool value)  {
                     appStore.toggleDarkMode(value: value);
+
                     setState(() {});
                   },
                 ),
@@ -85,7 +95,7 @@ class _JSSettingScreenState extends State<JSSettingScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "nd15n545lnz@privaterelay.applied.com",
+                    "${email}",
                     style: boldTextStyle(),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

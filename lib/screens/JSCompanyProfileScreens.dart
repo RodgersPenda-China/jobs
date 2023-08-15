@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:galleryimage/galleryimage.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:job_search/components/JSDrawerScreen.dart';
 import 'package:job_search/components/JSFilteredResultsComponent.dart';
@@ -38,7 +39,7 @@ class _JSCompanyProfileScreensState extends State<JSCompanyProfileScreens> {
     super.initState();
     make_https();
   }
-  var jobs = {};
+  var jobs = {}; bool image_loading = false; List<String> listOfUrls= [];
 
   make_https() async {
     String url = '';
@@ -52,12 +53,21 @@ class _JSCompanyProfileScreensState extends State<JSCompanyProfileScreens> {
     }
     print(url);
     setState(() {
-      loading = true;
+      loading = true; image_loading = true;
     });
     final response = await http.get(Uri.parse(url));
     setState(() {
       loading = false;
       jobs = json.decode(response.body);
+    });
+
+    List<String> images = [];
+    for(int i = 0; i < jobs['user'][0]['photos'].length; i++){
+      images.add(jobs['user'][0]['photos'][i]);
+    }
+    setState(() {
+      listOfUrls = images;
+      image_loading = false;
     });
     // var jobs = ;
   }
@@ -478,7 +488,21 @@ class _JSCompanyProfileScreensState extends State<JSCompanyProfileScreens> {
                   ],
                 ),
               ),
-              JSFilteredResultsComponent(),
+              image_loading?CircularProgressIndicator(color: Colors.blue,):
+              jobs['user'][0]['photos'].length == 0? Center(child: Text('No Image'),):Container(
+                  child:
+                  Column(
+                    children: [
+                      GalleryImage(
+                        // key: _key,
+                        imageUrls: listOfUrls,
+                        numOfShowImages: 4,
+                        titleGallery: '${jobs['user'][0]['short_name']}',
+                      )
+                    ],
+                  )
+
+              )
             ]).expand(),
           ],
         ),

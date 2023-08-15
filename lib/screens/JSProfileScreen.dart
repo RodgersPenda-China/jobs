@@ -55,11 +55,14 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String url = "https://x.smartbuybuy.com/job/index.php?get_user=1&token=${token}";
-    Get.find<HomeController>().user_loading = true;
+    setState(() {
+      Get.find<HomeController>().user_loading = true;
+      loading = true;
+    });
     print(url);
     final response = await http.get(Uri.parse(url));
      setState(() {
-      //  loading = false;
+        loading = false;
         var _body = jsonDecode(response.body);
     Get.find<HomeController>().user = UsersModel.fromJson(_body).user;
     Get.find<HomeController>().work = UsersModel.fromJson(_body).work;
@@ -338,7 +341,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             16.height,
-            authController.user_loading?Shimmer.fromColors(
+            loading?Shimmer.fromColors(
               baseColor: Colors.red,
               highlightColor: Colors.blue,
               child: Row(

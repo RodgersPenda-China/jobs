@@ -48,8 +48,6 @@ class _JSReviewComponentState extends State<JSReviewComponent> {
               overflow: TextOverflow.ellipsis,
               maxLines: 3,
             ),
-            8.height,
-            Text(data.companyImage.validate(), style: secondaryTextStyle()),
             16.height,
             Text(
               data.totalDays.validate(),
@@ -58,18 +56,6 @@ class _JSReviewComponentState extends State<JSReviewComponent> {
               overflow: TextOverflow.ellipsis,
             ),
             8.height,
-            Row(
-              children: [
-                Text(data.dateAnswere.validate(), style: secondaryTextStyle()),
-                8.width,
-                Container(width: 1, height: 10, color: gray.withOpacity(0.4)),
-                8.width,
-                Text(
-                  data.totalReview.validate(),
-                  style: secondaryTextStyle(color: js_primaryColor.withOpacity(0.8), decoration: TextDecoration.underline),
-                ),
-              ],
-            )
           ],
         ).paddingAll(16);
       },

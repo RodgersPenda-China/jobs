@@ -33,11 +33,16 @@ class _JSDrawerScreenState extends State<JSDrawerScreen> {
 
   void init() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? role = prefs.getInt('role');
-    if(role ==0){
+    int? role = prefs.getInt('role');    String? token = prefs.getString('token');
+    if(role ==0 && token != ''){
       setState(() {
         drawerList = getDrawerList3();
         drawerList2 = getDrawerList4();
+      });
+    } else {
+      setState(() {
+        drawerList = getDrawerList5();
+        drawerList2 = getDrawerList6();
       });
     }
   }
@@ -133,10 +138,13 @@ class _JSDrawerScreenState extends State<JSDrawerScreen> {
                           Divider(color: gray.withOpacity(0.4)).visible(drawerIndex < 7),
                         ],
                       ).onTap(() async {
+
                         final SharedPreferences prefs = await SharedPreferences.getInstance();
                         int? role = prefs.getInt('role');
+                        String? token = prefs.getString('token');
                         late int cut;
                         if(role == 0){cut = 3;} else {cut = 5;}
+                        if(token == null || token == ''){cut = 2;}
                         if (drawerIndex == cut) {
                           //Sign the person out
                           await prefs.setString('token', '');

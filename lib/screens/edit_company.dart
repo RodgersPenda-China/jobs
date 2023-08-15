@@ -260,22 +260,22 @@ class _JSCompleteProfileOneScreenState extends State<EditMoney> {
                     //
                     //   ],
                     // ),
-                       Center( child: ElevatedButton(onPressed: () async {
-                         //upload pictures
-                         if(images.length > 4){return;}
-                         FilePickerResult? result = await FilePicker.platform.pickFiles();
-
-
-                         if (result != null) {
-                           setState(() {
-                             images.add(File(result.files.single.path!));
-
-                           });
-                           // ik = false;
-                         } else {
-                           // User canceled the picker
-                         }
-                       }, child: Text('Upload'))),
+                    //    Center( child: ElevatedButton(onPressed: () async {
+                    //      //upload pictures
+                    //      if(images.length > 4){return;}
+                    //      FilePickerResult? result = await FilePicker.platform.pickFiles();
+                    //
+                    //
+                    //      if (result != null) {
+                    //        setState(() {
+                    //          images.add(File(result.files.single.path!));
+                    //
+                    //        });
+                    //        // ik = false;
+                    //      } else {
+                    //        // User canceled the picker
+                    //      }
+                    //    }, child: Text('Upload'))),
                     Text("Description*", style: boldTextStyle()),
                     HtmlEditor(
                       controller: controller,
@@ -389,7 +389,7 @@ class _JSCompleteProfileOneScreenState extends State<EditMoney> {
                               files.add(MultipartBody('0', image));
                             }
                             setState(() {loading = true;});
-                            await Get.find<HomeController>().personal_details(f_name,l_name,gender,phone,location,place_id,files);
+                            await Get.find<HomeController>().personal_details(f_name,l_name,gender,phone,location,place_id,description,files);
                             var results = Get.find<HomeController>().personal_reponse;
                             if(results['error'] == 0){
                               final snackBar = SnackBar(

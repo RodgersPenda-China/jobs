@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:job_search/screens/user.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:job_search/screens/JSCompleteProfileOneScreen.dart';
 import 'package:job_search/screens/JSEnableNotificationDialog.dart';
@@ -12,6 +13,7 @@ import 'package:job_search/utils/JSWidget.dart';
 import 'package:job_search/main.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import '../components/JSDrawerScreen.dart';
 import '../controller/home.dart';
 import 'JSCompanyProfileScreens.dart';
@@ -35,12 +37,13 @@ class _JSMessagesScreenState extends State<JSMessagesScreen> {
     make_https();
   }
   var messages = {};
-
+  int role = 0;
   make_https() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
+    role = prefs.getInt('role')!;
     String url = '';
-      url = "https://x.smartbuybuy.com/job/index.php?get_message=1&role=0&token=${token}";
+      url = "https://x.smartbuybuy.com/job/index.php?get_message=1&role=${role}&token=${token}";
     setState(() {
       loading = true;
     });
@@ -87,18 +90,17 @@ class _JSMessagesScreenState extends State<JSMessagesScreen> {
                   isScrollable: false,
                   indicatorColor: js_primaryColor,
                   tabs: [
-                    //Tab(child: Text("CV", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                    Tab(child: Text("Applied Jobs", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                    Tab(child: Text("Received Invites", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
+                    Tab(child: Text("${role == 0?'Applied Jobs':'Candidates'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
+                    Tab(child: Text("${role == 0?'Received Invites':'Applicants'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
                   ],
                   controller: controller,
                 ),
                 TabBarView(
                   children: [
                     loading? Center(child: CircularProgressIndicator(color: Colors.blue,),):
-                    messages['applied'].length == 0?
-                    Center(child: Text('No Data Found'),)
-                        :
+                    messages['applied'].length == 0 && role == 0 || messages['candidate'].length == 0 && role == 1?
+                    Center(child: Text('No Data Found'),):
+                        role == 0?
                     ListView.separated(
                       itemCount: messages['applied'].length,
                       padding: EdgeInsets.all(8),
@@ -150,25 +152,96 @@ class _JSMessagesScreenState extends State<JSMessagesScreen> {
                             )
                             ,
                             6.height,
+                            GestureDetector(
+                            onTap: (){
+                        launchUrl(Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${messages['applied'][index]['location']}&destination_place_id=${messages['applied'][index]['location']}'
+                        ),mode: LaunchMode.externalNonBrowserApplication,);
+                        },
+                        child:
                             Row(
                               children: [
                                 Icon(Icons.location_on,color: Colors.blue,),
                                 8.width,
                                 Text('${messages['applied'][index]['location']}', style: secondaryTextStyle(color: Colors.blue)),
                               ],
-                            ),
+                            )),
                           ],
                         ).onTap(() {
                           // JSCompanyProfileScreens(popularCompanyList: data).launch(context);
                         });
                       },
-                    ),
+                    )
+                            :
+                        ListView.separated(
+                          itemCount: messages['candidate'].length,
+                          padding: EdgeInsets.all(8),
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          separatorBuilder: (BuildContext context, int index) => Divider(),
+                          itemBuilder: (context, index) {
+                            //JSPopularCompanyModel data = popularCompanyList[index];
+
+                            return  Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                GestureDetector(
+                                  onTap: (){
+                                    UserScreen(id: messages['candidate'][index]['id'],applicant: 0,
+                                        job_id: 0.toString()).launch(context);
+                                    //JSCompanyProfileScreens(id: messages['candidate'][index]['id'],employer: 0,).launch(context);
+                                  },
+                                  child: Row(
+                                    children: [
+                                      commonCachedNetworkImage(messages['candidate'][index]['image'], height: 50, width: 50, fit: BoxFit.contain),
+                                      16.width,
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(messages['candidate'][index]['name'], style: boldTextStyle()),
+                                          4.height,
+
+                                          Row(
+                                            children: [
+                                              Container(
+                                                  width: 200,
+                                                  child:Text('${messages['candidate'][index]['long_name']}', style: secondaryTextStyle(color: js_textColor.withOpacity(0.7)))
+
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                )
+                                ,
+                                6.height,
+                            GestureDetector(
+                            onTap: (){
+                            launchUrl(Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${messages['candidate'][index]['location']}&destination_place_id=${messages['candidate'][index]['place_id']}'
+                            ),mode: LaunchMode.externalNonBrowserApplication,);
+                            },
+                            child:
+                                Row(
+                                  children: [
+                                    Icon(Icons.location_on,color: Colors.blue,),
+                                    8.width,
+                                    Text('${messages['candidate'][index]['location']}', style: secondaryTextStyle(color: Colors.blue)),
+                                  ],
+                                )),
+                              ],
+                            ).onTap(() {
+                              // JSCompanyProfileScreens(popularCompanyList: data).launch(context);
+                            });
+                          },
+                        ),
+
                     loading? Center(child: CircularProgressIndicator(color: Colors.blue,),):
-                    messages['candidate'].length == 0?
+                    messages['candidate'].length == 0 && role == 0 || messages['applied'].length == 0 && role == 1?
                     Center(child: Text('No Data Found'),)
-                        :
+                        :role == 0?
                     ListView.separated(
-                      itemCount: messages['applied'].length,
+                      itemCount: messages['candidate'].length,
                       padding: EdgeInsets.all(8),
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
@@ -209,19 +282,97 @@ class _JSMessagesScreenState extends State<JSMessagesScreen> {
                             )
                             ,
                             6.height,
+                        GestureDetector(
+                        onTap: (){
+                        launchUrl(Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${messages['candidate'][index]['location']}&destination_place_id=${messages['candidate'][index]['place_id']}'
+                        ),mode: LaunchMode.externalNonBrowserApplication,);
+                        },
+                        child:
                             Row(
                               children: [
                                 Icon(Icons.location_on,color: Colors.blue,),
                                 8.width,
                                 Text('${messages['candidate'][index]['location']}', style: secondaryTextStyle(color: Colors.blue)),
                               ],
-                            ),
+                            )),
                           ],
                         ).onTap(() {
                           // JSCompanyProfileScreens(popularCompanyList: data).launch(context);
                         });
                       },
-                    ),
+                    ):
+                    ListView.separated(
+                      itemCount: messages['applied'].length,
+                      padding: EdgeInsets.all(8),
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      separatorBuilder: (BuildContext context, int index) => Divider(),
+                      itemBuilder: (context, index) {
+                        //JSPopularCompanyModel data = popularCompanyList[index];
+
+                        return  Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: (){
+                                UserScreen(id: messages['applied'][index]['id'],applicant: 1,
+                                    job_id: messages['applied'][index]['job_id']).launch(context);
+                                // JSCompanyProfileScreens(id: messages['applied'][index]['id'],employer: 0,).launch(context);
+                              },
+                              child: Row(
+                                children: [
+                                  commonCachedNetworkImage(messages['applied'][index]['image'], height: 50, width: 50, fit: BoxFit.contain),
+                                  16.width,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(messages['applied'][index]['name'], style: boldTextStyle()),
+                                      4.height,
+
+                                      Row(
+                                        children: [
+                                          Container(
+                                              width: 200,
+                                              child:Text('Job: ${messages['applied'][index]['job']}', style: secondaryTextStyle(color: js_textColor.withOpacity(0.7)))
+
+                                          )
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Container(
+                                              width: 200,
+                                              child:Text('CV: ${messages['applied'][index]['cv']}', style: secondaryTextStyle(color: js_textColor.withOpacity(0.7)))
+
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            )
+                            ,
+                            6.height,
+                            GestureDetector(
+                            onTap: (){
+                        launchUrl(Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${messages['applied'][index]['location']}&destination_place_id=${messages['applied'][index]['place_id']}'
+                        ),mode: LaunchMode.externalNonBrowserApplication,);
+                        },
+                        child:
+                            Row(
+                              children: [
+                                Icon(Icons.location_on,color: Colors.blue,),
+                                8.width,
+                                Text('${messages['applied'][index]['location']}', style: secondaryTextStyle(color: Colors.blue)),
+                              ],
+                            )),
+                          ],
+                        ).onTap(() {
+                          // JSCompanyProfileScreens(popularCompanyList: data).launch(context);
+                        });
+                      },
+                    )
                   ],
                 ).expand(),
               ],

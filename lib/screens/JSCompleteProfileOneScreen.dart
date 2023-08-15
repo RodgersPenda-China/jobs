@@ -301,7 +301,7 @@ class _JSCompleteProfileOneScreenState extends State<JSCompleteProfileOneScreen>
                         error = true; message = 'Last Name Is Empty';
                       } else if(phone.length != 10){
                         error = true; message = 'Phone Number Shoube Be 10 Digits';
-                      }else if(has_image == false){
+                      }else if(has_image == false && widget.kl[0].image == ''){
                         error = true; message = 'Image Not Selected';
                       }
                       var place = {};
@@ -330,10 +330,12 @@ class _JSCompleteProfileOneScreenState extends State<JSCompleteProfileOneScreen>
                          print(location);
 
                       //cover the image to an uploadable format
-                      List<MultipartBody> files = [];
-                      files.add(MultipartBody('0',image));
+                        List<MultipartBody> files = [];
+                        if(has_image == true) {
+                          files.add(MultipartBody('0', image));
+                        }
                       setState(() {loading = true;});
-                      await Get.find<HomeController>().personal_details(f_name,l_name,gender,phone,location,place_id,files);
+                      await Get.find<HomeController>().personal_details(f_name,l_name,gender,phone,location,place_id,description,files);
                       var results = Get.find<HomeController>().personal_reponse;
                       if(results['error'] == 0){
                         final snackBar = SnackBar(

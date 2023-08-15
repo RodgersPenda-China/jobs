@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:job_search/controller/api.dart';
 import 'package:job_search/screens/candidate.dart';
+import 'package:job_search/screens/photos.dart';
 import 'package:job_search/screens/post_job.dart';
 import 'package:job_search/screens/workExperience.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -52,35 +53,37 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
     super.initState();
     init();
   }
-  var user = {}; var jobs = {};bool user_loading = false;
+  List<String> listOfUrls= [];
+  var user = {}; var jobs = {};bool user_loading = false; bool image_loading = false;
   //List<Education> edu = ;
   void init() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String url = "https://x.smartbuybuy.com/job/index.php?get_employer=1&token=${token}";
     setState(() {
-      loading = true;
+      loading = true; image_loading = true;
     });
     print(url);
     final response = await http.get(Uri.parse(url));
     setState(() {
-      loading = false;
       var _body = jsonDecode(response.body);
       user = _body;
       jobs = _body;
       user_loading = false;
-      // Get.find<HomeController>().user = UsersModel.fromJson(_body).user;
+      loading = false;
     });
     print('object');
+    //print(user['photos'].runtimeType);
+    List<String> images = [];
+    for(int i = 0; i < user['photos'].length; i++){
+      images.add(user['photos'][i]);
+    }
+    setState(() {
+      listOfUrls = images;
+      image_loading = false;
+    });
   }
-  List<String> listOfUrls= [
-    "https://cosmosmagazine.com/wp-content/uploads/2020/02/191010_nature.jpg",
-    "https://scx2.b-cdn.net/gfx/news/hires/2019/2-nature.jpg",
-    "https://isha.sadhguru.org/blog/wp-content/uploads/2016/05/natures-temples.jpg",
-    "https://upload.wikimedia.org/wikipedia/commons/7/77/Big_Nature_%28155420955%29.jpeg",
-    "https://s23574.pcdn.co/wp-content/uploads/Singular-1140x703.jpg",
-    "https://www.expatica.com/app/uploads/sites/9/2017/06/Lake-Oeschinen-1200x675.jpg",
-  ];
+
 
   @override
   void setState(fn) {
@@ -202,13 +205,15 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Container(
                                 width: 200,
                                 child:Text(user['long_name'], style: boldTextStyle(size: 22)),
                               ),
-                             Padding(padding: EdgeInsets.only(left: 0.0,top: 0.0,right: 10.0,bottom: 0.0),
+                              10.width,
+                              Container(width: 10,
+                              padding: EdgeInsets.only(right: 50),
                               child: IconButton(onPressed: (){
                                User kv = User(id: user['id'], name: user['long_name'],
                                     gender: 'Male', phone: user['phone'],
@@ -227,7 +232,11 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                             children: [
                               Icon(Icons.business, color:Theme.of(context).iconTheme.color),
                               8.width,
-                              Text(user['short_name'], style: boldTextStyle()),
+                              // Container(
+                              //   width: 100,
+                               Text(user['short_name'], style: boldTextStyle()),
+
+                              //)
                             ],
                           ),
                           GestureDetector(
@@ -240,7 +249,7 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                 Icon(Icons.location_on, color:Theme.of(context).iconTheme.color),
                                 8.width,
                                 Container(
-                                  width: 100,
+                                  width: 200,
                                   child:                                 Text(user['location'], style: boldTextStyle(color: Colors.blue)),
 
                                 )
@@ -732,15 +741,27 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                             ),
                           )
                       ):Container(),
-              Container(
-              child: GalleryImage(
-             // key: _key,
-              imageUrls: listOfUrls,
-              numOfShowImages: 4,
-              titleGallery: '_title',
-              )
+             image_loading?CircularProgressIndicator(color: Colors.blue,):
+             user['photos'].length == 0? Center(child: Text('No Image'),):Container(
+              child:
+              Column(
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      PhotosScreen().launch(context);
+                    },
+                    child:// Get.find<HomeController>().photos_loading?CircularProgressIndicator():
+                Text('Upload')),
+                GalleryImage(
+                  // key: _key,
+                  imageUrls: listOfUrls,
+                  numOfShowImages: 4,
+                  titleGallery: '${user['short_name']}',
+                )
+              ],
               )
 
+              )
                     ],
                   ).expand(),
                 ],

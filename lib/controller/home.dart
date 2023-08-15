@@ -31,10 +31,10 @@ class HomeController extends GetxController implements GetxService {
   }
   bool apply_loading = false;
   var personal_reponse  = {}; //var cvs = [];
-  personal_details(String f_name,String l_name,String gender,String phone,location,place_id,List<MultipartBody> image) async {
+  personal_details(String f_name,String l_name,String gender,String phone,location,place_id,description,List<MultipartBody> image) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    Response response = await HomeRepo.personal_details(token!,f_name, l_name, gender, phone, location,place_id, image);
+    Response response = await HomeRepo.personal_details(token!,f_name, l_name, gender, phone, location,place_id,description, image);
     personal_reponse = response.body;
     update();
   }
@@ -123,6 +123,16 @@ class HomeController extends GetxController implements GetxService {
     loading_from = 1;
     filter_category = cat;
     filter_loading = false;
+    update();
+  }
+  var photos = {}; bool photos_loading = false;
+  upload_photos(List<String> web,List<MultipartBody> files) async {
+    photos_loading = true; update();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    Response response = await HomeRepo.upload_photos(token!,web,files);
+    //cv_response = response.body;
+    photos_loading = false;
     update();
   }
 }

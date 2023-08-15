@@ -91,7 +91,7 @@ class _JSSettingComponentState extends State<JSSettingComponent> {
           ],
         ),
         16.height,
-        Text("@2023 Yanga Jobs", style: primaryTextStyle()).paddingOnly(left: 16),
+        Text("@2023 Main Jobs", style: primaryTextStyle()).paddingOnly(left: 16),
       ],
     );
   }

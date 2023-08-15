@@ -13,6 +13,7 @@ import 'package:job_search/utils/JSWidget.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../model/JSPopularCompanyModel.dart';
 import '../utils/JSDataGenerator.dart';
@@ -205,13 +206,19 @@ class _JSJobCompaniesState extends State<CandidatesScreen> {
                         )
                         ,
                         6.height,
+                        GestureDetector(
+                        onTap: (){
+                    launchUrl(Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${companies[index]['location']}&destination_place_id=${companies[index]['place_id']}'
+                    ),mode: LaunchMode.externalNonBrowserApplication,);
+                    },
+                    child:
                         Row(
                           children: [
                             Icon(Icons.location_on,color: Colors.blue,),
                             8.width,
                             Text('${companies[index]['location']}', style: secondaryTextStyle(color: Colors.blue)),
                           ],
-                        ),
+                        )),
                       ],
                     ).onTap(() {
                       // JSCompanyProfileScreens(popularCompanyList: data).launch(context);

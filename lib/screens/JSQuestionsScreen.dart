@@ -6,6 +6,9 @@ import 'package:job_search/utils/JSConstant.dart';
 import 'package:job_search/utils/JSWidget.dart';
 import 'package:job_search/main.dart';
 
+import '../utils/JSColors.dart';
+import '../utils/JSImage.dart';
+
 
 class JSQuestionsScreen extends StatefulWidget {
   final JSPopularCompanyModel? popularCompanyList;
@@ -35,29 +38,22 @@ class _JSQuestionsScreenState extends State<JSQuestionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          16.height,
-          Text(
-            "321 questions about working ${widget.popularCompanyList!.companyName}",
-            style: boldTextStyle(),
-          ).paddingSymmetric(horizontal: 16),
-          8.height,
-          Container(
-            height: textFieldHeight,
-            decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
-            child: AppTextField(
-              textFieldType: TextFieldType.NAME,
-              keyboardType: TextInputType.text,
-              decoration: jsInputDecoration(hintText: "Search keyword", icon: Icon(Icons.search,color: context.iconColor)),
-            ),
-          ).paddingSymmetric(horizontal: 16),
-          8.height,
-          JSReviewComponent(),
-        ],
-      ),
-    );
+    return
+      Scaffold(
+        appBar: jsAppBar(context, notifications: false, message: false, bottomSheet: false, backWidget: true, homeAction: false,),
+      body:SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.topCenter,
+                child: Image.asset(js_SplashImage, height: 100, color: appStore.isDarkModeOn ? white : js_primaryColor),
+              ),
+              JSReviewComponent(),
+            ],
+          ),
+        )
+      )
+      ;
   }
 }

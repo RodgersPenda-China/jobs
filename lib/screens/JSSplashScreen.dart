@@ -48,9 +48,9 @@ class _JSSplashScreenState extends State<JSSplashScreen> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     if(token == null || token == '') {
-      JSSearchResultScreen().launch(context);
-    } else {
       SelectScreen().launch(context);
+    } else {
+      JSSearchResultScreen().launch(context);
     }
   }
 

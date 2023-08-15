@@ -14,6 +14,7 @@ import 'package:job_search/utils/JSWidget.dart';
 import 'package:job_search/main.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import '../components/JSDrawerScreen.dart';
 import '../components/JSJobDetailComponent.dart';
 import '../components/JSRemoveJobComponent.dart';
@@ -57,17 +58,20 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
     super.initState();
     make_https();
   }
+  int role = 0;
 
   make_https() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String url = '';
+
     if(token != null && token != '') {
       url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&token=${token}";
     } else {
       url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1";
     }
     setState(() {
+      role = prefs.getInt('role')!;
       loading = true;
     });
     print(url);
@@ -566,11 +570,17 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                           JSCompanyProfileScreens(id: jobs[i]['user_id'],employer: 0).launch(context);
 
                                         },
-                                        child:Icon (
+                                        child:
+                                        GestureDetector(
+                                            onTap: (){
+                                              launchUrl(Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${jobs[i]['location']}&destination_place_id=${jobs[i]['place_id']}'
+                                              ),mode: LaunchMode.externalNonBrowserApplication,);
+                                            },
+                                            child:Icon (
                                           Icons.location_on,
                                           color: Colors.blue,
                                           size: 23
-                                      )),
+                                      ))),
                                     ),
                                   ],
                                 ),
@@ -635,7 +645,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                             ],
                           ).paddingOnly(left: 16,right: 16,bottom: 80),
                          ),
-                              Positioned(
+                            role == 0?  Positioned(
                                 left: 0,
                                 right: 0,
                                 bottom: 8,
@@ -749,7 +759,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                   Text("Applied", style: boldTextStyle(color: white)),
 
                                 ),
-                              )
+                              ):SizedBox()
                             ],
                           ),
                         );

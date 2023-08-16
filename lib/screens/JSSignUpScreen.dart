@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 // import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/snackbar/snackbar.dart';
+import 'package:job_search/screens/reset.dart';
 // import 'package:image_picker/image_picker.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:job_search/screens/JSJobSearchScreen.dart';
@@ -101,9 +102,17 @@ class _JSSignUpScreenState extends State<JSSignUpScreen> {
                       ),
                     ),
                     16.height,
+                    Center(child:
+                    GestureDetector(
+                      onTap: (){
+                        ResetPassword().launch(context);
+                      },
+                      child:                     Text('Reset Password',style: TextStyle(color: js_primaryColor),),),
+
+                    ),
                     RichText(
                       text: TextSpan(
-                        text: 'When you create an account or sign in, you agree to Indeed\'s ',
+                        text: 'When you create an account or sign in, you agree to Main Jobs\'s ',
                         style: secondaryTextStyle(),
                         children: <TextSpan>[
                           TextSpan(text: 'Terms, ', style: boldTextStyle(color: js_primaryColor, decoration: TextDecoration.underline)),
@@ -154,7 +163,7 @@ class _JSSignUpScreenState extends State<JSSignUpScreen> {
                             );
                             ScaffoldMessenger.of(context)
                               ..hideCurrentSnackBar()
-                              ..showSnackBar(snackBar);
+                              ..showSnackBar(snackBar); return;
                           } else if(password.length < 6){
                             final snackBar = SnackBar(
                               elevation: 0,
@@ -170,6 +179,7 @@ class _JSSignUpScreenState extends State<JSSignUpScreen> {
                             ScaffoldMessenger.of(context)
                               ..hideCurrentSnackBar()
                               ..showSnackBar(snackBar);
+                            return;
                           }
                           setState(() {loading = true;});
                           int role  = 0;

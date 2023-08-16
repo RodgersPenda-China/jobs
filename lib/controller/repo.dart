@@ -6,6 +6,9 @@ class homeRepo {
   login_signup(String role,email,password) async{
     return await apiClient.getData('login_register=1&role=${role}&email=${email}&password=${password}');
   }
+  update_password(String password,token) async{
+    return await apiClient.getData('update_password=1&password=${password}&token=${token}');
+  }
   google(String place) async{
     return await apiClient.getData('google=1&place=${place}');
   }
@@ -18,8 +21,8 @@ class homeRepo {
   get_jobs() async{
     return await apiClient.getData('get_jobs=1');
   }
-  filter(String cat,city,type,remote) async{
-    return await apiClient.getData('get_jobs=1&filter=1&city=${city}&category=${cat}&type=${type}&remote=${remote}');
+  filter(String token,cat,city,type,remote) async{
+    return await apiClient.getData('get_jobs=1&token=${token}&filter=1&city=${city}&category=${cat}&type=${type}&remote=${remote}&limit=25&offset=0');
   }
   get_cv(String token) async{
     return await apiClient.getData('get_cv=1&token=${token}');

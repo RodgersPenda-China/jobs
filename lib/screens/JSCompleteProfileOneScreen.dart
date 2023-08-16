@@ -20,6 +20,7 @@ import 'package:job_search/main.dart';
 
 import '../controller/api.dart';
 import '../controller/home.dart';
+import 'JSProfileScreen.dart';
 
 
 class JSCompleteProfileOneScreen extends StatefulWidget {
@@ -351,6 +352,8 @@ class _JSCompleteProfileOneScreenState extends State<JSCompleteProfileOneScreen>
                         ScaffoldMessenger.of(context)
                           ..hideCurrentSnackBar()
                           ..showSnackBar(snackBar);
+                        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute( builder: (ctx) => JSProfileScreen()), (route) => false);
+
                       } else {
                         final snackBar = SnackBar(
                           elevation: 0,

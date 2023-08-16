@@ -48,15 +48,82 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
 
   var jobCategoryItems = ['Job Type', 'Full-Time', 'Part-Time', 'Contract', 'Internship'];
 
-  String salaryValue = 'Remote/Online';
+  String salaryValue = 'Remote/Online'; bool reached_bottom = false;
   List<JSPopularCompanyModel> filteredResultsList = getFilteredResultsData();
   bool loading = true;
   var salaryItems = ['Remote/Online', 'Remote', 'Online'];
   var jobs = [];
+  late ScrollController _controller;
   @override
   void initState() {
+    _controller = ScrollController();
+    _controller.addListener(_scrollListener);
     super.initState();
     make_https();
+  }
+  String message = ''; String search = ''; int called = 0;
+  _scrollListener() async {
+    print(_controller.position);
+    if (_controller.offset >= _controller.position.maxScrollExtent &&
+        !_controller.position.outOfRange) {
+      print("reach the bottom");
+      setState(() {
+        message = "reach the bottom"; reached_bottom = true; called = 1;
+      });
+      int limit = Get.find<HomeController>().limit;
+      int offset = Get.find<HomeController>().offset;
+      print('offset: ${offset}');
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      String url = '';
+      if(token != null && token != '') {
+        url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&token=${token}&limit=${limit}&offset=${offset}";
+      } else {
+        url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&limit=${limit}&offset=${offset}";
+      }
+      if(Get.find<HomeController>().filter_on = true)
+      { String category='';
+        if(Get.find<HomeController>().filter_category != ''){
+          category = Get.find<HomeController>().filter_category;
+        }
+        String city=fg['city']!,type=fg['type']!,
+            remote=fg['remote']!;
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? token = prefs.getString('token');
+        if(token != null && token != '') {
+          url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&filter=1&city=${city}"
+              "&category=${category}&type=${type}&remote=${remote}&token=${token}&limit=${limit}&offset=${offset}";
+        } else {
+          url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&filter=1&city=${city}"
+              "&category=${category}&type=${type}&remote=${remote}&limit=${limit}&offset=${offset}";
+        }
+      }
+      if(search != ''){
+        url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&token=${token}&search=${search}&limit=${limit}&offset=${offset}";
+      }
+      print(url);
+      final response = await http.get(Uri.parse(url));
+      setState(() {
+        reached_bottom = false;
+      });
+
+      var kv = jsonDecode(response.body);
+      for(int i = 0; i < kv.length;i++){
+
+        setState(() {
+          jobs.add(kv[i]);
+          Get.find<HomeController>().filter_array.add(kv[i]);
+          Get.find<HomeController>().offset = offset+25;
+        });
+      }
+      print(jobs.length);
+    }
+    if (_controller.offset <= _controller.position.minScrollExtent &&
+        !_controller.position.outOfRange) {
+      setState(() {
+        message = "reach the top";
+      });
+    }
   }
   int role = 0;
 
@@ -66,9 +133,9 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
     String url = '';
 
     if(token != null && token != '') {
-      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&token=${token}";
+      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&token=${token}&limit=25&offset=0";
     } else {
-      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1";
+      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&limit=25&offset=0";
     }
     setState(() {
       role = prefs.getInt('role')!;
@@ -79,6 +146,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
     setState(() {
       loading = false;
       jobs = json.decode(response.body);
+      Get.find<HomeController>().offset = 25;
     });
     print('object');
     // var jobs = ;
@@ -92,6 +160,12 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
     if(Get.find<HomeController>().filter_category != ''){
       category = Get.find<HomeController>().filter_category;
     }
+    setState(() {
+      Get.find<HomeController>().filter_on = true;
+      Get.find<HomeController>().limit = 25;
+      Get.find<HomeController>().offset = 0;
+
+    });
   String city=fg['city']!,type=fg['type']!,
       remote=fg['remote']!;
     String url = '';
@@ -99,10 +173,10 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
     String? token = prefs.getString('token');
     if(token != null && token != '') {
       url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&filter=1&city=${city}"
-          "&category=${category}&type=${type}&remote=${remote}&token=${token}";
+          "&category=${category}&type=${type}&remote=${remote}&token=${token}&limit=25&offset=0";
     } else {
-      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&filter=1&city=${city}"
-          "&category=${category}&type=${type}&remote=${remote}";
+      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&filter=1&city=${city}&limit=2&offset=0"
+          "&category=${category}&type=${type}&remote=${remote}&limit=25&offset=0";
     }
     print(url);
     final response = await http.get(Uri.parse(url));
@@ -110,6 +184,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
     setState(() {
       loading = false;
       jobs = json.decode(response.body);
+      Get.find<HomeController>().offset = 25;
     });
   }
   bool apply_loading = false; var cv_body = []; bool job_apply = false;
@@ -125,18 +200,49 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
         scaffoldKey.currentState!.openDrawer();
       }),
       body:GetBuilder<HomeController>(builder: (authController){
-      return SingleChildScrollView(child:Column(
+      return SingleChildScrollView(
+          controller: _controller,
+          child:Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+
+            ],
+          ),
           Container(
             height: textFieldHeight,
             alignment: Alignment.center,
             margin: EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 24),
             decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
             child: AppTextField(
+              onChanged: (k){search = k;},
+              onFieldSubmitted: (v) async {
+                final SharedPreferences prefs = await SharedPreferences.getInstance();
+                String? token = prefs.getString('token');
+                String url = '';
+
+                if(token != null && token != '') {
+                  url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&token=${token}&search=${v}";
+                } else {
+                  url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&search=${v}";
+                }
+                setState(() {
+                  role = prefs.getInt('role')!;
+                  loading = true;
+                });
+                print(url);
+                final response = await http.get(Uri.parse(url));
+                setState(() {
+                  loading = false;
+                  jobs = json.decode(response.body);
+                });
+                print('object');
+              },
               textFieldType: TextFieldType.NAME,
               decoration: jsInputDecoration(
                 hintText: "Search for jobs title, keyword or company",
+                showPreFixIcon: true,
                 prefixIcon: Icon(Icons.search,color: Theme.of(context).iconTheme.color,size: 20),
               ),
             ),
@@ -345,7 +451,8 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
 
               baseColor: Colors.red, highlightColor: Colors.blue):
           jobs.length == 0?Center(child:Text("No Jobs Found")):
-          Get.find<HomeController>().loading_from == 0?SingleChildScrollView(
+          Get.find<HomeController>().loading_from == 0?
+          SingleChildScrollView(
             child: Column(
               children: [
                 for(int i = 0; i < jobs.length;i++)
@@ -443,7 +550,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                           ],
                         ),
                         16.height,
-                        Text('Today', style: secondaryTextStyle()),
+                        Text(' ${jobs[i]['posted_time']}', style: secondaryTextStyle()),
                       ],
                     ),
                   ).onTap(() {
@@ -498,7 +605,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                               8.height,
                               Text(jobs[i]['short_name'], style: primaryTextStyle()),
                               8.height,
-                              Text('${jobs[i]['city']} . ${jobs[i]['remote'] == 'no'?'Remote':'Online'}', style: primaryTextStyle()),
+                              Text('${jobs[i]['city']} . ${jobs[i]['remote'] == 'Yes'?'Remote':'Online'}', style: primaryTextStyle()),
                               8.height,
                               Container(
                                   padding: EdgeInsets.all(8),
@@ -599,7 +706,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                               4.height,
                               jsGetPrimaryTitle(jobs[i]['category']),
                               4.height,
-                              jsGetPrimaryTitle(jobs[i]['remote'] == 'no'?'Remote':'Online'),
+                              jsGetPrimaryTitle(jobs[i]['remote'] == 'Yes'?'Remote':'Online'),
                               4.height,
                               Divider(),
                               16.height,
@@ -789,15 +896,11 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("${jobs[i]['applied'] == 'yes'?'Applied!':'New'}", style: primaryTextStyle(size: 14,color: Colors.red)),
+                            Text("${Get.find<HomeController>().filter_array[i]['applied'] == 'yes'?'Applied!':'New'} ${Get.find<HomeController>().filter_array[i]['applied']} ${i}", style: primaryTextStyle(size: 14,color: Colors.red)),
                             Icon(
                               1 == 0 ? Icons.favorite : Icons.favorite_border,
                               size: 20,
-                              color: filteredResultsList[i].selectSkill.validate()
-                                  ? js_primaryColor
-                                  : appStore.isDarkModeOn
-                                  ? white
-                                  : black,
+                              color: js_primaryColor,
                             ).onTap(() {
                               //filteredResultsList[i].selectSkill = !filteredResultsList[i].selectSkill.validate();
                               setState(() {});
@@ -866,7 +969,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                           ],
                         ),
                         16.height,
-                        Text('Today', style: secondaryTextStyle()),
+                        Text(' ${Get.find<HomeController>().filter_array[i]['posted_time']}', style: secondaryTextStyle()),
                       ],
                     ),
                   ).onTap(() {
@@ -921,7 +1024,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                       8.height,
                                       Text( Get.find<HomeController>().filter_array[i]['short_name'], style: primaryTextStyle()),
                                       8.height,
-                                      Text('${ Get.find<HomeController>().filter_array[i]['city']} . ${jobs[i]['remote'] == 'no'?'Remote':'Online'}', style: primaryTextStyle()),
+                                      Text('${ Get.find<HomeController>().filter_array[i]['city']} . ${jobs[i]['remote'] == 'Yes'?'Remote':'Online'}', style: primaryTextStyle()),
                                       8.height,
                                       Container(
                                           padding: EdgeInsets.all(8),
@@ -990,14 +1093,20 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
 
                                               trailing: GestureDetector(
                                                   onTap: (){
-                                                    JSCompanyProfileScreens(id:  Get.find<HomeController>().filter_array[i]['user_id'],employer: 0).launch(context);
+                                                    JSCompanyProfileScreens(id: jobs[i]['user_id'],employer: 0).launch(context);
 
                                                   },
-                                                  child:Icon (
-                                                      Icons.location_on,
-                                                      color: Colors.blue,
-                                                      size: 23
-                                                  )),
+                                                  child:
+                                                  GestureDetector(
+                                                      onTap: (){
+                                                        launchUrl(Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${jobs[i]['location']}&destination_place_id=${jobs[i]['place_id']}'
+                                                        ),mode: LaunchMode.externalNonBrowserApplication,);
+                                                      },
+                                                      child:Icon (
+                                                          Icons.location_on,
+                                                          color: Colors.blue,
+                                                          size: 23
+                                                      ))),
                                             ),
                                           ],
                                         ),
@@ -1016,7 +1125,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                       4.height,
                                       jsGetPrimaryTitle( Get.find<HomeController>().filter_array[i]['category']),
                                       4.height,
-                                      jsGetPrimaryTitle( Get.find<HomeController>().filter_array[i]['remote'] == 'no'?'Remote':'Online'),
+                                      jsGetPrimaryTitle( Get.find<HomeController>().filter_array[i]['remote'] == 'Yes'?'Remote':'Online'),
                                       4.height,
                                       Divider(),
                                       16.height,
@@ -1069,7 +1178,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                   child: AppButton(
                                     onTap: () async {
                                       //applying loading
-                                      if(jobs[i]['applied'] == 'yes'){return;}
+                                      if(Get.find<HomeController>().filter_array[i]['applied'] == 'yes'){return;}
                                       final SharedPreferences prefs = await SharedPreferences.getInstance();
                                       String? token = prefs.getString('token');
                                       String url = "https://x.smartbuybuy.com/job/index.php?get_cvs=1&token=${token}";
@@ -1145,7 +1254,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                                               //cv_body = jsonDecode(response.body);
                                                             });
                                                             setState(() {
-                                                              jobs[i]['applied'] = 'yes';
+                                                              Get.find<HomeController>().filter_array[i]['applied'] = 'yes';
                                                             });
                                                             EasyLoading.dismiss();
                                                             Navigator.pop(context);
@@ -1169,8 +1278,8 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                     },
                                     width: MediaQuery.of(context).size.width,
                                     margin: EdgeInsets.all(16),
-                                    color: jobs[i]['applied'] == 'no'?js_primaryColor:Colors.red,
-                                    child: jobs[i]['applied'] == 'no'?
+                                    color: Get.find<HomeController>().filter_array[i]['applied'] == 'no'?js_primaryColor:Colors.red,
+                                    child: Get.find<HomeController>().filter_array[i]['applied'] == 'no'?
                                     Text("Apply Now", style: boldTextStyle(color: white)):
                                     Text("Applied", style: boldTextStyle(color: white)),
 
@@ -1184,7 +1293,102 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                   })
               ],
             ),
-          )
+          ),
+          reached_bottom?Shimmer.fromColors(child: Container(
+
+            margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Loading Jobs, Please Wait", style: primaryTextStyle(size: 14)),
+                    Icon(
+                      1 == 1 ? Icons.favorite : Icons.favorite_border,
+                      size: 20,
+                      color: 1 == 1
+                          ? js_primaryColor
+                          : appStore.isDarkModeOn
+                          ? white
+                          : black,
+                    ).onTap(() {
+                      // filteredResultsList[i].selectSkill = !filteredResultsList[i].selectSkill.validate();
+                      setState(() {});
+                    }),
+                  ],
+                ),
+                8.height,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Marketing Manager', style: boldTextStyle()),
+                    8.width,
+                    Icon(Icons.block, size: 20).onTap(() {
+                      //filteredResultsList[i].isBlocked = !filteredResultsList[i].isBlocked.validate();
+                      setState(() {});
+                    }),
+                  ],
+                ),
+                4.height,
+                Text('Ndola', style: primaryTextStyle()),
+                4.height,
+                Text("Remote: Yes", style: primaryTextStyle()),
+                8.height,
+                Container(
+                  decoration: boxDecorationRoundedWithShadow(
+                    8,
+                    backgroundColor: appStore.isDarkModeOn ? scaffoldDarkColor : js_backGroundColor,
+                  ),
+                  padding: EdgeInsets.all(8),
+                  //width: 165,
+                  child: Row(
+                    children: [
+                      Icon(Icons.payment, size: 18),
+                      4.width,
+                      Text(
+                        'Nk',
+                        style: boldTextStyle(),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ).flexible(),
+                    ],
+                  ),
+                ),
+                16.height,
+                Row(
+                  children: [
+                    Icon(Icons.work, size: 18, color: js_primaryColor),
+                    4.width,
+                    Text("2 Years Working Experience", style: secondaryTextStyle()),
+                  ],
+                ),
+                8.height,
+                Row(
+                  children: [
+                    Icon(Icons.school, size: 18, color: Colors.red),
+                    4.width,
+                    Text("Bachelor Degree", style: secondaryTextStyle()),
+                  ],
+                ),
+                8.height,
+                Row(
+                  children: [
+                    Icon(Icons.watch_later_outlined, size: 18, color: gray.withOpacity(0.8)),
+                    4.width,
+                    Text("Full Time", style: secondaryTextStyle()),
+                  ],
+                ),
+                16.height,
+                Text('Just Now', style: secondaryTextStyle()),
+              ],
+            ),
+          ),
+
+              baseColor: Colors.red, highlightColor: Colors.blue):
+         called == 0? SizedBox():
+          Center(child: Text('You Have Reached The End'),)
         ],
       ));})
     );

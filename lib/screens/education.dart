@@ -16,11 +16,12 @@ import 'package:job_search/utils/JSWidget.dart';
 import 'package:job_search/main.dart';
 
 import '../controller/home.dart';
+import 'JSProfileScreen.dart';
 
 
 class EducationScreen extends StatefulWidget {
-  List<Education> work; int edit;
-  EducationScreen({Key? key,required this.work,required this.edit}) : super(key: key);
+  List<Education> work; int edit,id;
+  EducationScreen({Key? key,required this.work,required this.edit,required this.id}) : super(key: key);
 
   @override
   _JSCompleteProfileThreeScreenState createState() => _JSCompleteProfileThreeScreenState();
@@ -57,28 +58,28 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
     super.initState();
     init();
     if(widget.edit == 1){
-      title = widget.work[0].title;
-      company = widget.work[0].school;
-      position = widget.work[0].degree;
-      category = widget.work[0].category;
-      work_type = widget.work[0].school_type;
-      city = widget.work[0].city;
-      from = widget.work[0].learn_from;
-      if(widget.work[0].learn_to == ''){_value = true;work_here = true;} else {to = widget.work[0].learn_from;}
+      title = widget.work[widget.id].title;
+      company = widget.work[widget.id].school;
+      position = widget.work[widget.id].degree;
+      category = widget.work[widget.id].category;
+      work_type = widget.work[widget.id].school_type;
+      city = widget.work[widget.id].city;
+      from = widget.work[widget.id].learn_from;
+      if(widget.work[widget.id].learn_to == ''){_value = true;work_here = true;} else {to = widget.work[widget.id].learn_from;}
       Future.delayed(
         const Duration(seconds: 8),
             () {
           print('here!!');
           setState(
                 () {
-              controller.setText(widget.work[0].description);
+              controller.setText(widget.work[widget.id].description);
 
             },
           );
         },
       );
     }
-    print(widget.work[0].school_type); print('School Here');
+    print(widget.work[widget.id].school_type); print('School Here');
   }
 
   void init() async {
@@ -130,7 +131,7 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
               ..hideCurrentSnackBar()
               ..showSnackBar(snackBar);
           } else {
-            if(work_here ==  false) {
+            if(work_here ==  false && widget.edit == 0) {
               DateTime dt1 = DateTime.parse(from_format);
               DateTime dt2 = DateTime.parse(to_format);
 
@@ -162,7 +163,7 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
               //now we make a request
               setState(() {loading  = true;});
               String id = '';
-              if(widget.work.length != 0){id = widget.work[0].id;}
+              if(widget.work.length != 0){id = widget.work[widget.id].id;}
               await Get.find<HomeController>().education(widget.edit.toString(),id,title, company,degree_type,category,work_type,city,from,to,description);
               var results = Get.find<HomeController>().education_response;
 
@@ -180,6 +181,8 @@ class _JSCompleteProfileThreeScreenState extends State<EducationScreen> {
                 ScaffoldMessenger.of(context)
                   ..hideCurrentSnackBar()
                   ..showSnackBar(snackBar);
+                Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute( builder: (ctx) => JSProfileScreen()), (route) => false);
+
               } else {
 
                 if(results['error'] == 0){

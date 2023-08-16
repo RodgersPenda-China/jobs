@@ -4,6 +4,7 @@ import 'package:job_search/screens/JSCompleteProfileOneScreen.dart';
 import 'package:job_search/utils/JSWidget.dart';
 
 import '../model/user.dart';
+import '../screens/about.dart';
 
 class JSSettingComponent extends StatefulWidget {
   const JSSettingComponent({Key? key}) : super(key: key);
@@ -81,10 +82,9 @@ class _JSSettingComponentState extends State<JSSettingComponent> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  jsGetSubTitle("About"),
-                  jsGetSubTitle("Privacy"),
-                  jsGetSubTitle("Terms"),
-                  jsGetSubTitle("Cookies"),
+                  GestureDetector(child: jsGetSubTitle("Contact Us"),onTap: (){AboutUs(info: 'Contact Us',).launch(context);},),
+                  GestureDetector(child: jsGetSubTitle("Privacy Policy"),onTap: (){AboutUs(info: 'Privacy Policy',).launch(context);},),
+                  GestureDetector(child: jsGetSubTitle("Terms & Conditions"),onTap: (){AboutUs(info: 'Terms & Conditions',).launch(context);},),
                 ],
               ),
             ),

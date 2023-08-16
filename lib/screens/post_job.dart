@@ -419,7 +419,7 @@ class _JSCompleteProfileThreeScreenState extends State<PostJob> {
                     HtmlEditor(
                       controller: controller,
                       htmlEditorOptions: HtmlEditorOptions(
-                        autoAdjustHeight: true,
+                        // autoAdjustHeight: true,
                         hint:  'Describe Yourself',
                         shouldEnsureVisible: true,
                         adjustHeightForKeyboard: true,

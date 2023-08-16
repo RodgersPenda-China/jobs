@@ -96,13 +96,6 @@ PreferredSizeWidget jsAppBar(BuildContext context, {VoidCallback? callBack, bool
                             },
                             icon: Icon(Icons.message))
                         : SizedBox(),
-                    notifications.validate()
-                        ? IconButton(
-                            onPressed: () {
-                              JSNotificationScreen().launch(context);
-                            },
-                            icon: Icon(Icons.notifications))
-                        : SizedBox(),
                     IconButton(onPressed: callBack, icon: Icon(Icons.menu)),
                   ],
                 ),
@@ -164,21 +157,18 @@ Widget commonCachedNetworkImage(
       fit: fit,
       color: color,
       alignment: alignment as Alignment? ?? Alignment.center,
-      errorWidget: (_, s, d) {
-        return placeHolderWidget(height: height, width: width, fit: fit, alignment: alignment, radius: radius);
-      },
       placeholder: (_, s) {
-        if (!usePlaceholderIfUrlEmpty) return SizedBox();
-        return placeHolderWidget(height: height, width: width, fit: fit, alignment: alignment, radius: radius);
+        if (!usePlaceholderIfUrlEmpty) return CircularProgressIndicator(color: Colors.blue,);
+        return CircularProgressIndicator(color: Colors.blue,);
       },
     );
   } else {
-    return Image.asset(url, height: height, width: width, fit: fit, alignment: alignment ?? Alignment.center).cornerRadiusWithClipRRect(radius ?? defaultRadius);
+    return  CircularProgressIndicator(color: Colors.blue,);
   }
 }
 
 Widget placeHolderWidget({double? height, double? width, BoxFit? fit, AlignmentGeometry? alignment, double? radius}) {
-  return Image.asset('images/app/placeholder.jpg', height: height, width: width, fit: fit ?? BoxFit.cover, alignment: alignment ?? Alignment.center).cornerRadiusWithClipRRect(radius ?? defaultRadius);
+  return CircularProgressIndicator(color: Colors.white,);
 }
 
 Widget filteredWidget({Widget? widget}) {

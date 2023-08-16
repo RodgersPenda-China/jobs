@@ -21,6 +21,7 @@ import 'package:job_search/utils/JSWidget.dart';
 import 'package:job_search/main.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../components/JSReviewAndSaVeComponent.dart';
 import '../controller/home.dart';
@@ -77,6 +78,7 @@ class _JSProfileScreenState extends State<UserScreen> {
         work = UsersModel.fromJson(_body).work;
         edu = UsersModel.fromJson(_body).education;
         user_loading = false;
+        added = true;
       });
     }
     if(user[0].candidate == 'Yes'){
@@ -86,7 +88,8 @@ class _JSProfileScreenState extends State<UserScreen> {
       setState(() {
         candidate_loading = true;
       });
-      String job_url = "https://x.smartbuybuy.com/job/index.php?get_this_job=1&job=${widget.job_id}";
+      String job_url = "https://x.smartbuybuy.com/job/index.php?get_this_job=1&job=${widget.job_id}&id=${widget.id}";
+      print(job_url);
       final response = await http.get(Uri.parse(job_url));
       setState(() {
         job = json.decode(response.body);
@@ -222,7 +225,125 @@ class _JSProfileScreenState extends State<UserScreen> {
       },
     );
   }
+  Future ed(BuildContext context,Education work){
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+      ),
+      builder: (context) {
+        return
+          FractionallySizedBox(
+            heightFactor: 0.90,
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              width: 30,
+                              height: 5,
+                              decoration: boxDecorationWithRoundedCorners(
+                                borderRadius: BorderRadius.circular(4),
+                                backgroundColor: appStore.isDarkModeOn ? white : black,
+                              ),
+                              alignment: Alignment.center,
+                              margin: EdgeInsets.only(top: 16, left: 24),
+                            ),
+                          ).expand(),
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: IconButton(
+                              onPressed: () {
+                                finish(context);
+                              },
+                              padding: EdgeInsets.all(16),
+                              icon: Icon(Icons.file_upload_outlined, size: 26),
+                              alignment: Alignment.topRight,
+                            ),
+                          ),
+                        ],
+                      ),
+                      32.height,
+                      Text( work.title, style: boldTextStyle(size: 22)),
+                      8.height,
+                      Text('Degree: '+ work.degree, style: primaryTextStyle()),
+                      8.height,
+                      Text('${ work.learn_from} - ${work.learn_to}', style: primaryTextStyle()),
+                      8.height,
 
+                      24.height,
+                      Text("School details", style: boldTextStyle(size: 20)),
+                      16.height,
+                      Text("School & Location", style: boldTextStyle()),
+                      4.height,
+                      Text('${ work.school}', style: primaryTextStyle()),
+                      4.height,
+                      Text('Location: ${ work.city}', style: primaryTextStyle(color: Colors.blue)),
+                      16.height,
+                      Text("School type", style: boldTextStyle()),
+                      4.height,
+                      jsGetPrimaryTitle( work.school_type),
+                      4.height,
+                      jsGetPrimaryTitle( work.category)
+                      ,4.height,
+                      Divider(),
+                      16.height,
+                      Text(" Description", style: boldTextStyle(size: 20)),
+                      16.height,
+                      HtmlWidget(
+                        // the first parameter (`html`) is required
+                        work.description,
+
+                        // all other parameters are optional, a few notable params:
+
+                        // specify custom styling for an element
+                        // see supported inline styling below
+                        customStylesBuilder: (element) {
+                          //if (element.classes.contains('foo')) {
+                          return {'fontSize': '60'};
+                          // }
+
+                          return null;
+                        },
+
+
+                        // these callbacks are called when a complicated element is loading
+                        // or failed to render allowing the app to render progress indicator
+                        // and fallback widget
+                        onErrorBuilder: (context, element, error) => Text('$element error: $error'),
+                        onLoadingBuilder: (context, element, loadingProgress) => CircularProgressIndicator(),
+
+                        // this callback will be triggered when user taps a link
+                        // onTapUrl: (url) => print('tapped $url'),
+
+                        // select the render mode for HTML body
+                        // by default, a simple `Column` is rendered
+                        // consider using `ListView` or `SliverList` for better performance
+                        renderMode: RenderMode.column,
+
+                        // set the default styling for text
+                        textStyle: TextStyle(fontSize: 15),
+
+                        // turn on `webView` if you need IFRAME support (it's disabled by default)
+                        //webView: true,
+                      ),
+                    ],
+                  ).paddingOnly(left: 16,right: 16,bottom: 80),
+                ),
+              ],
+            ),
+          );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -236,169 +357,189 @@ class _JSProfileScreenState extends State<UserScreen> {
           }),
           floatingActionButton:
              widget.applicant == 1?
-             ElevatedButton(
-               onPressed: (){
-                 if(loading == true){return;}
-                 showModalBottomSheet(
-                   context: context,
-                   isScrollControlled: true,
-                   shape: RoundedRectangleBorder(
-                     borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-                   ),
-                   builder: (context) {
-                     return 
-                       FractionallySizedBox(
-                         heightFactor: 0.90,
-                         child: Stack(
-                           children: [
-                             SingleChildScrollView(
-                               child: Column(
-                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                 children: [
-                                   Row(
-                                     mainAxisAlignment: MainAxisAlignment.center,
-                                     children: [
-                                       Align(
-                                         alignment: Alignment.center,
-                                         child: Container(
-                                           width: 30,
-                                           height: 5,
-                                           decoration: boxDecorationWithRoundedCorners(
-                                             borderRadius: BorderRadius.circular(4),
-                                             backgroundColor: appStore.isDarkModeOn ? white : black,
-                                           ),
-                                           alignment: Alignment.center,
-                                           margin: EdgeInsets.only(top: 16, left: 24),
-                                         ),
-                                       ).expand(),
-                                       Align(
-                                         alignment: Alignment.topRight,
-                                         child: IconButton(
-                                           onPressed: () {
-                                             finish(context);
-                                           },
-                                           padding: EdgeInsets.all(16),
-                                           icon: Icon(Icons.file_upload_outlined, size: 26),
-                                           alignment: Alignment.topRight,
-                                         ),
-                                       ),
-                                     ],
-                                   ),
-                                   32.height,
-                                   Text(job['name'], style: boldTextStyle(size: 22)),
-                                   8.height,
-                                   Text('Company Short Name', style: primaryTextStyle()),
-                                   8.height,
-                                   Text('${job['city']} . ${job['remote'] == 'no'?'Remote':'Online'}', style: primaryTextStyle()),
-                                   8.height,
-                                   Container(
-                                       padding: EdgeInsets.all(8),
-                                       decoration: boxDecorationWithRoundedCorners(
-                                         backgroundColor: appStore.isDarkModeOn ? scaffoldDarkColor : js_backGroundColor,
-                                       ),
+                 Row(
+                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                   children: [
+                     ElevatedButton(
+                       onPressed: (){
+                         launchUrl(Uri.parse(job['cv']),mode: LaunchMode.externalApplication);
+                       },
+                       style: ElevatedButton.styleFrom(
+                           primary: js_primaryColor,
+                           shape: StadiumBorder()// Background color
+                       ),
+                       child: candidate_loading?CircularProgressIndicator(color: Colors.white,):
+                       Text(
+                         'View CV',
+                         style: TextStyle(fontSize: 18),
+                       ),
+                     ),
+                     ElevatedButton(
+                       onPressed: (){
+                         if(loading == true){return;}
+                         showModalBottomSheet(
+                           context: context,
+                           isScrollControlled: true,
+                           shape: RoundedRectangleBorder(
+                             borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                           ),
+                           builder: (context) {
+                             return
+                               FractionallySizedBox(
+                                 heightFactor: 0.90,
+                                 child: Stack(
+                                   children: [
+                                     SingleChildScrollView(
                                        child: Column(
+                                         crossAxisAlignment: CrossAxisAlignment.start,
                                          children: [
                                            Row(
+                                             mainAxisAlignment: MainAxisAlignment.center,
                                              children: [
-                                               Icon(Icons.work, size: 18, color: js_primaryColor),
-                                               4.width,
-                                               Text("${job['experience']} Years Working Experience", style: secondaryTextStyle()),
+                                               Align(
+                                                 alignment: Alignment.center,
+                                                 child: Container(
+                                                   width: 30,
+                                                   height: 5,
+                                                   decoration: boxDecorationWithRoundedCorners(
+                                                     borderRadius: BorderRadius.circular(4),
+                                                     backgroundColor: appStore.isDarkModeOn ? white : black,
+                                                   ),
+                                                   alignment: Alignment.center,
+                                                   margin: EdgeInsets.only(top: 16, left: 24),
+                                                 ),
+                                               ).expand(),
+                                               Align(
+                                                 alignment: Alignment.topRight,
+                                                 child: IconButton(
+                                                   onPressed: () {
+                                                     finish(context);
+                                                   },
+                                                   padding: EdgeInsets.all(16),
+                                                   icon: Icon(Icons.file_upload_outlined, size: 26),
+                                                   alignment: Alignment.topRight,
+                                                 ),
+                                               ),
                                              ],
                                            ),
+                                           32.height,
+                                           Text(job['name'], style: boldTextStyle(size: 22)),
                                            8.height,
-                                           Row(
-                                             children: [
-                                               Icon(Icons.school, size: 18, color: Colors.red),
-                                               4.width,
-                                               Text(job['education'], style: secondaryTextStyle()),
-                                             ],
-                                           ),
+                                           Text('Company Short Name', style: primaryTextStyle()),
                                            8.height,
-                                           Row(
-                                             children: [
-                                               Icon(Icons.watch_later_outlined, size: 18, color: gray.withOpacity(0.8)),
-                                               4.width,
-                                               Text(job['kind'], style: secondaryTextStyle()),
-                                             ],
+                                           Text('${job['city']} . ${job['remote'] == 'no'?'Remote':'Online'}', style: primaryTextStyle()),
+                                           8.height,
+                                           Container(
+                                               padding: EdgeInsets.all(8),
+                                               decoration: boxDecorationWithRoundedCorners(
+                                                 backgroundColor: appStore.isDarkModeOn ? scaffoldDarkColor : js_backGroundColor,
+                                               ),
+                                               child: Column(
+                                                 children: [
+                                                   Row(
+                                                     children: [
+                                                       Icon(Icons.work, size: 18, color: js_primaryColor),
+                                                       4.width,
+                                                       Text("${job['experience']} Years Working Experience", style: secondaryTextStyle()),
+                                                     ],
+                                                   ),
+                                                   8.height,
+                                                   Row(
+                                                     children: [
+                                                       Icon(Icons.school, size: 18, color: Colors.red),
+                                                       4.width,
+                                                       Text(job['education'], style: secondaryTextStyle()),
+                                                     ],
+                                                   ),
+                                                   8.height,
+                                                   Row(
+                                                     children: [
+                                                       Icon(Icons.watch_later_outlined, size: 18, color: gray.withOpacity(0.8)),
+                                                       4.width,
+                                                       Text(job['kind'], style: secondaryTextStyle()),
+                                                     ],
+                                                   ),
+                                                 ],
+                                               )),
+
+                                           24.height,
+                                           Text("Job details", style: boldTextStyle(size: 20)),
+                                           16.height,
+                                           Text("Salary", style: boldTextStyle()),
+                                           4.height,
+                                           Text('ZK${job['salary']}/Month', style: primaryTextStyle()),
+                                           16.height,
+                                           Text("Job type", style: boldTextStyle()),
+                                           4.height,
+                                           jsGetPrimaryTitle(job['kind']),
+                                           4.height,
+                                           jsGetPrimaryTitle(job['category']),
+                                           4.height,
+                                           jsGetPrimaryTitle(job['remote'] == 'no'?'Remote':'Online'),
+                                           4.height,
+                                           Divider(),
+                                           16.height,
+                                           Text("Full Job Description", style: boldTextStyle(size: 20)),
+                                           16.height,
+                                           HtmlWidget(
+                                             // the first parameter (`html`) is required
+                                             job['description'],
+
+                                             // all other parameters are optional, a few notable params:
+
+                                             // specify custom styling for an element
+                                             // see supported inline styling below
+                                             customStylesBuilder: (element) {
+                                               //if (element.classes.contains('foo')) {
+                                               return {'fontSize': '60'};
+                                               // }
+
+                                               return null;
+                                             },
+
+
+                                             // these callbacks are called when a complicated element is loading
+                                             // or failed to render allowing the app to render progress indicator
+                                             // and fallback widget
+                                             onErrorBuilder: (context, element, error) => Text('$element error: $error'),
+                                             onLoadingBuilder: (context, element, loadingProgress) => CircularProgressIndicator(),
+
+                                             // this callback will be triggered when user taps a link
+                                             // onTapUrl: (url) => print('tapped $url'),
+
+                                             // select the render mode for HTML body
+                                             // by default, a simple `Column` is rendered
+                                             // consider using `ListView` or `SliverList` for better performance
+                                             renderMode: RenderMode.column,
+
+                                             // set the default styling for text
+                                             textStyle: TextStyle(fontSize: 15),
+
+                                             // turn on `webView` if you need IFRAME support (it's disabled by default)
+                                             //webView: true,
                                            ),
                                          ],
-                                       )),
+                                       ).paddingOnly(left: 16,right: 16,bottom: 80),
+                                     ),
+                                   ],
+                                 ),
+                               );
+                           },
+                         );
+                       },
+                       style: ElevatedButton.styleFrom(
+                           primary: js_primaryColor,
+                           shape: StadiumBorder()// Background color
+                       ),
+                       child: candidate_loading?CircularProgressIndicator(color: Colors.white,):
+                       Text(
+                         'View Job',
+                         style: TextStyle(fontSize: 18),
+                       ),
+                     )
 
-                                   24.height,
-                                   Text("Job details", style: boldTextStyle(size: 20)),
-                                   16.height,
-                                   Text("Salary", style: boldTextStyle()),
-                                   4.height,
-                                   Text('ZK${job['salary']}/Month', style: primaryTextStyle()),
-                                   16.height,
-                                   Text("Job type", style: boldTextStyle()),
-                                   4.height,
-                                   jsGetPrimaryTitle(job['kind']),
-                                   4.height,
-                                   jsGetPrimaryTitle(job['category']),
-                                   4.height,
-                                   jsGetPrimaryTitle(job['remote'] == 'no'?'Remote':'Online'),
-                                   4.height,
-                                   Divider(),
-                                   16.height,
-                                   Text("Full Job Description", style: boldTextStyle(size: 20)),
-                                   16.height,
-                                   HtmlWidget(
-                                     // the first parameter (`html`) is required
-                                     job['description'],
-
-                                     // all other parameters are optional, a few notable params:
-
-                                     // specify custom styling for an element
-                                     // see supported inline styling below
-                                     customStylesBuilder: (element) {
-                                       //if (element.classes.contains('foo')) {
-                                       return {'fontSize': '60'};
-                                       // }
-
-                                       return null;
-                                     },
-
-
-                                     // these callbacks are called when a complicated element is loading
-                                     // or failed to render allowing the app to render progress indicator
-                                     // and fallback widget
-                                     onErrorBuilder: (context, element, error) => Text('$element error: $error'),
-                                     onLoadingBuilder: (context, element, loadingProgress) => CircularProgressIndicator(),
-
-                                     // this callback will be triggered when user taps a link
-                                     // onTapUrl: (url) => print('tapped $url'),
-
-                                     // select the render mode for HTML body
-                                     // by default, a simple `Column` is rendered
-                                     // consider using `ListView` or `SliverList` for better performance
-                                     renderMode: RenderMode.column,
-
-                                     // set the default styling for text
-                                     textStyle: TextStyle(fontSize: 15),
-
-                                     // turn on `webView` if you need IFRAME support (it's disabled by default)
-                                     //webView: true,
-                                   ),
-                                 ],
-                               ).paddingOnly(left: 16,right: 16,bottom: 80),
-                             ),
-                           ],
-                         ),
-                       );
-                   },
-                 );
-               },
-               style: ElevatedButton.styleFrom(
-                   primary: js_primaryColor,
-                   shape: StadiumBorder()// Background color
-               ),
-               child: candidate_loading?CircularProgressIndicator(color: Colors.white,):
-               Text(
-                 'View Job',
-                 style: TextStyle(fontSize: 18),
-               ),
-             )
+                   ],
+                 )
              :ElevatedButton(
                 onPressed: () async {
                   if(added){return;}
@@ -533,14 +674,22 @@ class _JSProfileScreenState extends State<UserScreen> {
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [Text(user[0].name, style: boldTextStyle(size: 22)),
+                          children: [
+                            Container(
+                              width: 200,
+                              child:                            Text(user[0].name, style: boldTextStyle(size: 22)),
+
+                            ),
                             ],
                         ),
                         Row(
                           children: [
                             Icon(Icons.location_on, color:Theme.of(context).iconTheme.color),
                             8.width,
-                            Text(user[0].location, style: boldTextStyle(color: Colors.blue)),
+            Container(
+            width: 150,
+            child:
+            Text(user[0].location, style: boldTextStyle(color: Colors.blue)),)
                           ],
                         ),
                         Row(
@@ -667,7 +816,7 @@ class _JSProfileScreenState extends State<UserScreen> {
                                             Text(edu[i].title, style: boldTextStyle()),
                                             Row(
                                               children: [
-                                                IconButton(onPressed: () {}, icon: Icon(Icons.remove_red_eye, color: js_primaryColor)),
+                                                IconButton(onPressed: () {ed(context,edu[i]);}, icon: Icon(Icons.remove_red_eye, color: js_primaryColor)),
                                               ],
                                             ),
                                           ],

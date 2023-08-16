@@ -1,4 +1,4 @@
-package com.example.job_search
+package com.ioevisa.main.jobs
 
 import io.flutter.embedding.android.FlutterActivity
 

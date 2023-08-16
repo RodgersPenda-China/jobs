@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.job_search">
+    package="com.ioevisa.main.jobs">
     <uses-permission android:name="android.permission.INTERNET" />
     <queries>
         <!-- If your app checks for SMS support -->
@@ -22,7 +22,7 @@
         <!--#docregion android-queries-->
     </queries>
     <application
-        android:label="job_search"
+        android:label="Main Jobs"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

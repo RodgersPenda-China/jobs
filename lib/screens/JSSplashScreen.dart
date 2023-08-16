@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,6 +10,10 @@ import 'package:job_search/utils/JSColors.dart';
 import 'package:job_search/utils/JSImage.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:job_search/main.dart';
+import 'package:http/http.dart' as http;
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../controller/api.dart';
 import '../controller/home.dart';
@@ -32,7 +37,34 @@ class _JSSplashScreenState extends State<JSSplashScreen> {
     ));
     Get.lazyPut(() => homeRepo(apiClient: Get.find()));
     Get.lazyPut(() => HomeController(HomeRepo: Get.find()));
-    init();
+    version();
+  }
+  version() async{
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? light_dark = prefs.getBool('dark');
+    if(light_dark  != null || light_dark == true){
+      appStore.toggleDarkMode(value: true);
+      setState(() {});
+    }
+    String version = '2.0.0';
+    String url = "https://x.smartbuybuy.com/job/index.php?get_version=${version}";
+    final response = await http.get(Uri.parse(url));
+    var res = jsonDecode(response.body);
+    if(res['error'] == 1 ){
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Oops...',
+        text: 'Your Version Is Outdated',
+        confirmBtnText: 'Download Latest',
+        onConfirmBtnTap: (){
+          launchUrl(Uri.parse('https://x.smartbuybuy.com/job/web.php'),mode: LaunchMode.externalApplication);
+        return;
+        }
+      );
+    } else {
+      navigationPage();
+    }
   }
 
   Future<Timer> init() async {
@@ -41,12 +73,18 @@ class _JSSplashScreenState extends State<JSSplashScreen> {
     //finish(context);
     var _duration = Duration(seconds: 5);
     return Timer(_duration, navigationPage);
+    //make a request to check current version of app
 
 
   }
   navigationPage() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
+    bool? light_dark = prefs.getBool('dark');
+    if(light_dark  != null || light_dark == true){
+      appStore.toggleDarkMode(value: true);
+      setState(() {});
+    }
     if(token == null || token == '') {
       SelectScreen().launch(context);
     } else {

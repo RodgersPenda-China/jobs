@@ -39,7 +39,7 @@ class _JSDrawerScreenState extends State<JSDrawerScreen> {
         drawerList = getDrawerList3();
         drawerList2 = getDrawerList4();
       });
-    } else {
+    } else if(token == '') {
       setState(() {
         drawerList = getDrawerList5();
         drawerList2 = getDrawerList6();

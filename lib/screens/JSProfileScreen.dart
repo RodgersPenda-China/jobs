@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
@@ -57,6 +58,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
     String url = "https://x.smartbuybuy.com/job/index.php?get_user=1&token=${token}";
     setState(() {
       Get.find<HomeController>().user_loading = true;
+      Get.find<HomeController>().cv_loading = true;
       loading = true;
     });
     print(url);
@@ -254,7 +256,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                       8.height,
 
                       24.height,
-                      Text("Job details", style: boldTextStyle(size: 20)),
+                      Text("School details", style: boldTextStyle(size: 20)),
                       16.height,
                       Text("School & Location", style: boldTextStyle()),
                       4.height,
@@ -262,7 +264,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                       4.height,
                       Text('Location: ${ work.city}', style: primaryTextStyle(color: Colors.blue)),
                       16.height,
-                      Text("Job type", style: boldTextStyle()),
+                      Text("School type", style: boldTextStyle()),
                       4.height,
                       jsGetPrimaryTitle( work.school_type),
                       4.height,
@@ -270,7 +272,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                       ,4.height,
                       Divider(),
                       16.height,
-                      Text("Full Job Description", style: boldTextStyle(size: 20)),
+                      Text(" Description", style: boldTextStyle(size: 20)),
                       16.height,
                       HtmlWidget(
                         // the first parameter (`html`) is required
@@ -318,6 +320,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
       },
     );
   }
+
 
 
   @override
@@ -389,13 +392,20 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
+                  height: 100,
                   decoration: boxDecorationWithRoundedCorners(
                     boxShape: BoxShape.circle,
                     border: Border.all(color: js_primaryColor, width: 4),
                     backgroundColor: context.scaffoldBackgroundColor,
                   ),
                   padding: EdgeInsets.all(24),
-                  child: Text('RP', style: boldTextStyle(size: 22)),
+                  child:authController.user[0].image != ''?CachedNetworkImage(
+                    imageUrl: authController.user[0].image,
+                    height: 100,
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  ):
+                  Text('RP', style: boldTextStyle(size: 22)),
                 ),
                 16.width,
                 Column(
@@ -403,7 +413,12 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [Text(authController.user[0].name, style: boldTextStyle(size: 22)),
+                      children: [
+                        Container(
+                          width: 200,
+                          child:  Text(authController.user[0].name, style: boldTextStyle(size: 22)),
+
+                        ),
                         IconButton(onPressed: () {
                           JSCompleteProfileOneScreen(kl: authController.user,).launch(context);}, icon: Icon(Icons.edit, color: js_primaryColor))],
                     ),
@@ -411,7 +426,11 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                       children: [
                         Icon(Icons.location_on, color:Theme.of(context).iconTheme.color),
                         8.width,
-                        Text(authController.user[0].location, style: boldTextStyle(color: Colors.blue)),
+                       Container(
+                         width: 200,
+                         child:                         Text(authController.user[0].location, style: boldTextStyle(color: Colors.blue)),
+
+                       )
                       ],
                     ),
                     Row(
@@ -691,7 +710,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                           children: [
                             Text("Work Experience", style: secondaryTextStyle(size: 18)),
                             IconButton(onPressed: () {
-                              WorkExperience(work: [],edit: 0,).launch(context);
+                              WorkExperience(work: [],edit: 0,id: 0,).launch(context);
                             }, icon: Icon(Icons.add_circle_outline, color: js_primaryColor)),
                           ],
                         ),
@@ -708,7 +727,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                                   Row(
                                     children: [
                                       IconButton(onPressed: () {
-                                        WorkExperience(work: authController.work,edit: 1,).launch(context);
+                                        WorkExperience(work: authController.work,edit: 1,id: i,).launch(context);
                                       }, icon: Icon(Icons.edit, color: js_primaryColor)),
                                       IconButton(onPressed: () {kl(context,authController.work[i]);}, icon: Icon(Icons.remove_red_eye, color: js_primaryColor)),
                                       IconButton(onPressed: () {}, icon: Icon(Icons.delete, color: js_primaryColor)),
@@ -728,7 +747,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text("Education", style: secondaryTextStyle(size: 18)),
-                            IconButton(onPressed: () {EducationScreen(work: [],edit: 0,).launch(context);}, icon: Icon(Icons.add_circle_outline, color: js_primaryColor)),
+                            IconButton(onPressed: () {EducationScreen(work: [],edit: 0,id: 0,).launch(context);}, icon: Icon(Icons.add_circle_outline, color: js_primaryColor)),
                           ],
                         ),
                         Divider(height: 0, color: gray.withOpacity(0.2)),
@@ -743,7 +762,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                                     Text(authController.edu[i].title, style: boldTextStyle()),
                                     Row(
                                       children: [
-                                        IconButton(onPressed: () {EducationScreen(work: authController.edu,edit: 1,).launch(context);}, icon: Icon(Icons.edit, color: js_primaryColor)),
+                                        IconButton(onPressed: () {EducationScreen(work: authController.edu,edit: 1,id: i,).launch(context);}, icon: Icon(Icons.edit, color: js_primaryColor)),
                                         IconButton(onPressed: () {ed(context,authController.edu[i]);}, icon: Icon(Icons.remove_red_eye, color: js_primaryColor)),
                                         IconButton(onPressed: () {}, icon: Icon(Icons.delete, color: js_primaryColor)),
                                       ],
@@ -763,7 +782,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
                   ),
                 )
                 ),
-                Container(
+                authController.user_loading?Container():Container(
                     child: SingleChildScrollView(
                       child:  Container(
                         margin: EdgeInsets.all(8),

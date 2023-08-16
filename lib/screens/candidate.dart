@@ -85,24 +85,10 @@ class _JSJobCompaniesState extends State<CandidatesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 16.height,
-                Text("Find great Place to work", style: boldTextStyle(size: 22)),
+                Text("Candidates", style: boldTextStyle(size: 22)),
                 8.height,
-                Text("Get access to millions of company reviews", style: secondaryTextStyle()),
                 8.height,
-                Text("Company name or job title", style: boldTextStyle()),
-                16.height,
-                Container(
-                  height: textFieldHeight,
-                  alignment: Alignment.center,
-                  decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
-                  child: AppTextField(
-                    textFieldType: TextFieldType.OTHER,
-                    keyboardType: TextInputType.text,
-                    decoration: jsInputDecoration(icon: Icon(Icons.search)),
-                  ),
-                ),
-                8.height,
-                AppButton(
+                widget.id == 0?SizedBox():AppButton(
                   color: js_primaryColor,
                   width: context.width(),
                   onTap: () {
@@ -110,8 +96,6 @@ class _JSJobCompaniesState extends State<CandidatesScreen> {
                   },
                   child: Text("Find Candidates", style: boldTextStyle(color: white)),
                 ),
-                16.height,
-                Text("Do you want to search for salaries?", style: boldTextStyle(color: js_textColor.withOpacity(0.7), decoration: TextDecoration.underline), textAlign: TextAlign.center).center(),
                 32.height,
                 loading?Shimmer.fromColors(child:         ListView.separated(
                   itemCount: 2,

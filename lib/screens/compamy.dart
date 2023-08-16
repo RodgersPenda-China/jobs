@@ -10,6 +10,7 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:job_search/controller/api.dart';
+import 'package:job_search/screens/buy.dart';
 import 'package:job_search/screens/candidate.dart';
 import 'package:job_search/screens/photos.dart';
 import 'package:job_search/screens/post_job.dart';
@@ -109,7 +110,9 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    BuyScreen().launch(context);
+                  },
                   style: ElevatedButton.styleFrom(
                       primary: js_primaryColor,
                       shape: StadiumBorder()// Background color
@@ -194,17 +197,31 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                           backgroundColor: context.scaffoldBackgroundColor,
                         ),
                         padding: EdgeInsets.all(24),
-                        child: CachedNetworkImage(
+                        child: user['image'] != ''?CachedNetworkImage(
                           imageUrl: user['image'],
                           placeholder: (context, url) => CircularProgressIndicator(),
                           errorWidget: (context, url, error) => Icon(Icons.error),
-                        ),
+                        ):
+                        Text('RP', style: boldTextStyle(size: 22)),
                       ),
                       16.width,
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          GestureDetector(onTap: (){
+                            print('ds');
+                            User kv = User(id: user['id'], name: user['long_name'],
+                                gender: 'Male', phone: user['phone'],
+                                email: user['email'], location: user['location'],
+                                place_id: user['place_id'], image: user['image'],
+                                description: user['description'],
+                                candidate: 'No', job: {},
+                                f_name: user['short_name'], l_name: user['long_name']);
+                            List<User> users = [];
+                            users.add(kv);
+
+                            EditMoney(kl: users,).launch(context);
+                          }, child:Row(
                             //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Container(
@@ -212,22 +229,12 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                 child:Text(user['long_name'], style: boldTextStyle(size: 22)),
                               ),
                               10.width,
-                              Container(width: 10,
+                              Container(width: 30,
+                              color: Colors.white,
                               padding: EdgeInsets.only(right: 50),
-                              child: IconButton(onPressed: (){
-                               User kv = User(id: user['id'], name: user['long_name'],
-                                    gender: 'Male', phone: user['phone'],
-                                    email: user['email'], location: user['location'],
-                                    place_id: user['place_id'], image: user['image'],
-                                    description: user['description'],
-                                    candidate: 'No', job: {},
-                                    f_name: user['short_name'], l_name: user['long_name']);
-                                List<User> users = [];
-                                users.add(kv);
-                                EditMoney(kl: users,).launch(context);
-                              }, icon: Icon(Icons.edit)))
+                              child:  Icon(Icons.edit))
                             ],
-                          ),
+                          )),
                           Row(
                             children: [
                               Icon(Icons.business, color:Theme.of(context).iconTheme.color),
@@ -310,7 +317,10 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                         child: Center(
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
-                                            children: <Widget>[FlutterLogo(), Text('data')],
+                                            children: <Widget>[
+                                              Text('Package Jobs',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                                              loading?CircularProgressIndicator():Text(user['c_jobs'].toString())],
+
                                           ),
                                         ),
                                       )),
@@ -337,8 +347,8 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
                                             children: <Widget>[
-                                              Text('Total Applicants',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
-                                              loading?CircularProgressIndicator():Text(user['applications'].toString())],
+                                              Text('Total Candidates',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                                              loading?CircularProgressIndicator():Text(user['candidate'].toString())],
                                           ),
                                         ),
                                       ))),
@@ -351,7 +361,9 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                         child: Center(
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
-                                            children: <Widget>[FlutterLogo(), Text('data')],
+                                            children: <Widget>[
+                                              Text('Package Candidates',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                                              loading?CircularProgressIndicator():Text(user['c_candidate'].toString())],
                                           ),
                                         ),
                                       )),
@@ -378,24 +390,11 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
                                             children: <Widget>[
-                                              Text('Total Candidates',style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                                              loading?CircularProgressIndicator():Text(user['candidate'].toString())],
+                                              Text('Total Applications',style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                                              loading?CircularProgressIndicator():Text(user['applications'].toString())],
                                           ),
                                         ),
                                       ))),
-                                      20.width,
-                                      Expanded(child: Card(
-                                        elevation: 2,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8)
-                                        ),
-                                        child: Center(
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: <Widget>[FlutterLogo(), Text('data')],
-                                          ),
-                                        ),
-                                      )),
                                     ],
                                   ),
                                 ),

@@ -16,6 +16,15 @@ class HomeController extends GetxController implements GetxService {
     login = false;
     update();
   }
+  update_password(String password) async{
+    login = true;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    Response response = await HomeRepo.update_password(password,token!);
+    login_response = response.body;
+    login = false;
+    update();
+  }
   bool google_loading = false; var google_response = []; List<String> google_list = [];
   Future<List<String>> google_autocomplete(String place) async {
     google_loading = true; google_list = [];
@@ -114,16 +123,26 @@ class HomeController extends GetxController implements GetxService {
     jobs_loading = false;
     update();
   }
-  int loading_from = 0; bool filter_loading = false; var filter_array=[];
+  int loading_from = 0; bool filter_loading = false; var filter_array=[]; bool filter_on = false;
   String filter_category = ''; var category_array = {};
+  int limit = 25; int offset = 0;
   filter(String cat,city,type,remote) async{
     filter_loading = true;  update();
-    Response response = await HomeRepo.filter(cat,city,type,remote);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    Response response = await HomeRepo.filter(token!,cat,city,type,remote);
     filter_array = response.body;
-    loading_from = 1;
     filter_category = cat;
     filter_loading = false;
+    filter_on = true;offset = 25;
+    if(cat == '' && city == '' && type ==  '' && remote == ''){
+      filter_on  = false;
+    }
+    loading_from = 1;
     update();
+    print(filter_array[15]['applied'] +'   '+filter_array[15]['applied']);
+    print('here');
+
   }
   var photos = {}; bool photos_loading = false;
   upload_photos(List<String> web,List<MultipartBody> files) async {

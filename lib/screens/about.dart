@@ -21,9 +21,13 @@ class _JSSettingScreenState extends State<AboutUs> {
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   late String terms;
   bool loading = true;
+  late ScrollController _controller;
+
   @override
   void initState() {
     super.initState();
+    _controller = ScrollController();
+    _controller.addListener(() {print('here'); });
     if(widget.info == 'Terms & Conditions'){
       terms = getTerms();
     } else {
@@ -52,7 +56,9 @@ class _JSSettingScreenState extends State<AboutUs> {
         scaffoldKey.currentState!.openDrawer();
       }),
       body:
-      SingleChildScrollView( child:
+      SingleChildScrollView(
+        controller: _controller,
+        child:
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

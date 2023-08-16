@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:job_search/components/JSDrawerScreen.dart';
 import 'package:job_search/components/JSSettingComponent.dart';
 import 'package:job_search/main.dart';
+import 'package:job_search/screens/password.dart';
 import 'package:job_search/utils/JSWidget.dart';
 import 'package:nb_utils/nb_utils.dart';
 
@@ -25,7 +26,10 @@ class _JSSettingScreenState extends State<JSSettingScreen> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     if(token != null && token != ''){
-      email = prefs.getString('token')!;
+      setState(() {
+        email = prefs.getString('email')!;
+
+      });
     }
   }
 
@@ -56,21 +60,19 @@ class _JSSettingScreenState extends State<JSSettingScreen> {
               8.height,
               email == 'Please Login'?SizedBox():Column(
                children: [
-                 SettingItemWidget(
-                   title: "Account Settings",
-                   titleTextStyle: boldTextStyle(size: 18),
-                   subTitle: "Contact information and password",
-                   leading: Icon(Icons.person),
-                   trailing: Icon(Icons.arrow_forward_ios, size: 18),
+                 GestureDetector(
+                   onTap: (){
+                     PasswordScreen().launch(context);
+                   },
+                   child:  SettingItemWidget(
+                     title: "Password Settings",
+                     titleTextStyle: boldTextStyle(size: 18),
+                     subTitle: "Reset Your Password",
+                     leading: Icon(Icons.lock_sharp),
+                     trailing: Icon(Icons.arrow_forward_ios, size: 18),
+                   ),
                  ),
-                 Divider(height: 0),
-                 SettingItemWidget(
-                   title: "Privacy Settings",
-                   titleTextStyle: boldTextStyle(size: 18),
-                   subTitle: "Information about Indeed privacy settings",
-                   leading: Icon(Icons.lock_sharp),
-                   trailing: Icon(Icons.arrow_forward_ios, size: 18),
-                 ),
+
                ],
              ),
 
@@ -81,10 +83,11 @@ class _JSSettingScreenState extends State<JSSettingScreen> {
                 leading: Icon(Icons.dark_mode, size: 26, color: context.iconColor),
                 trailing: Switch(
                   value: appStore.isDarkModeOn,
-                  onChanged: (bool value)  {
+                  onChanged: (bool value)  async {
                     appStore.toggleDarkMode(value: value);
-
                     setState(() {});
+                    final SharedPreferences prefs = await SharedPreferences.getInstance();
+                    prefs.setBool('dark', value);
                   },
                 ),
                 onTap: () {},

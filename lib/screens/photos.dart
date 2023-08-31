@@ -41,7 +41,7 @@ class _JSSignUpScreenState extends State<PhotosScreen> {
   void init() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    String url = "https://x.smartbuybuy.com/job/index.php?get_photos=1&token=${token}";
+    String url = "http://api.ioevisa.net/api/job/index.php?get_photos=1&token=${token}";
     setState(() {
       loading = true;
     });

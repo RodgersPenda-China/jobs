@@ -39,7 +39,7 @@ class _JSSettingScreenState extends State<BuyScreen> {
   void init() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    String url = "https://x.smartbuybuy.com/job/index.php?get_my_package=1&token=${token}";
+    String url = "http://api.ioevisa.net/api/job/index.php?get_my_package=1&token=${token}";
     setState(() {
       b_loading = true;
     });
@@ -204,7 +204,7 @@ class _JSSettingScreenState extends State<BuyScreen> {
 
                                       final SharedPreferences prefs = await SharedPreferences.getInstance();
                                       String? token = prefs.getString('token');
-                                      String url = "https://x.smartbuybuy.com/job/index.php?buy_package=1&amount=50&token=${token}&wallet=${phone}";
+                                      String url = "http://api.ioevisa.net/api/job/index.php?buy_package=1&amount=50&token=${token}&wallet=${phone}";
                                       setState(() {
                                         loading = true;
                                       });

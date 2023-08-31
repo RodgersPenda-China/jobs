@@ -55,7 +55,7 @@ class _JSProfileScreenState extends State<UserScreen> {
   void init() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    String url = "https://x.smartbuybuy.com/job/index.php?get_user=1&id=${widget.id}&token=${token}";
+    String url = "http://api.ioevisa.net/api/job/index.php?get_user=1&id=${widget.id}&token=${token}";
     setState(() {
       loading = true; candidate_loading = true;
     });
@@ -88,7 +88,7 @@ class _JSProfileScreenState extends State<UserScreen> {
       setState(() {
         candidate_loading = true;
       });
-      String job_url = "https://x.smartbuybuy.com/job/index.php?get_this_job=1&job=${widget.job_id}&id=${widget.id}";
+      String job_url = "http://api.ioevisa.net/api/job/index.php?get_this_job=1&job=${widget.job_id}&id=${widget.id}";
       print(job_url);
       final response = await http.get(Uri.parse(job_url));
       setState(() {
@@ -546,7 +546,7 @@ class _JSProfileScreenState extends State<UserScreen> {
                  // Add Candidate
                   final SharedPreferences prefs = await SharedPreferences.getInstance();
                   String? token = prefs.getString('token'); String candidate_id = user[0].id;
-                  String url = "https://x.smartbuybuy.com/job/index.php?add_candidate=1&token=${token}&candidate_id=${candidate_id}";
+                  String url = "http://api.ioevisa.net/api/job/index.php?add_candidate=1&token=${token}&candidate_id=${candidate_id}";
                   setState(() {
                     candidate_loading = true;
                   });

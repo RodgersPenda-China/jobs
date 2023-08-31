@@ -44,11 +44,11 @@ class _JSJobCompaniesState extends State<CandidatesScreen> {
     String? token = prefs.getString('token');
     String url = '';
     if(widget.id == 0) {
-      url = "https://x.smartbuybuy.com/job/index.php?get_candidates=1";
+      url = "http://api.ioevisa.net/api/job/index.php?get_candidates=1";
     } else if(widget.id == 1) {
-      url = "https://x.smartbuybuy.com/job/index.php?get_my_candidates=1&token=${token}";
+      url = "http://api.ioevisa.net/api/job/index.php?get_my_candidates=1&token=${token}";
     } else {
-      url = "https://x.smartbuybuy.com/job/index.php?get_my_applicants=1&token=${token}";
+      url = "http://api.ioevisa.net/api/job/index.php?get_my_applicants=1&token=${token}";
     }
     setState(() {
       loading = true;

@@ -11,7 +11,7 @@ import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient extends GetxService {
-  String appBaseUrl = 'https://x.smartbuybuy.com/job/index.php?' ;
+  String appBaseUrl = 'http://api.ioevisa.net/api/job/index.php?' ;
   final String noInternetMessage = 'Connection to API server failed due to internet connection';
   final int timeoutInSeconds = 30;
   late String token;

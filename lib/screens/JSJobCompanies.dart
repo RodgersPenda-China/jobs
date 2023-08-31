@@ -38,7 +38,7 @@ class _JSJobCompaniesState extends State<JSJobCompanies> {
   bool loading = true; var companies = [];
 
   void init() async {
-    String url = "https://x.smartbuybuy.com/job/index.php?get_companies=1";
+    String url = "http://api.ioevisa.net/api/job/index.php?get_companies=1";
     setState(() {
       loading = true;
     });

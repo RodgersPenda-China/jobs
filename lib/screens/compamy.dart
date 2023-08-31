@@ -60,7 +60,7 @@ class _JSProfileScreenState extends State<EmployeeScreen> {
   void init() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    String url = "https://x.smartbuybuy.com/job/index.php?get_employer=1&token=${token}";
+    String url = "http://api.ioevisa.net/api/job/index.php?get_employer=1&token=${token}";
     setState(() {
       loading = true; image_loading = true;
     });

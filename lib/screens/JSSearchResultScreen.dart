@@ -77,9 +77,9 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
       String? token = prefs.getString('token');
       String url = '';
       if(token != null && token != '') {
-        url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&token=${token}&limit=${limit}&offset=${offset}";
+        url = "http://api.ioevisa.net/api/job/index.php?get_jobs=1&token=${token}&limit=${limit}&offset=${offset}";
       } else {
-        url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&limit=${limit}&offset=${offset}";
+        url = "http://api.ioevisa.net/api/job/index.php?get_jobs=1&limit=${limit}&offset=${offset}";
       }
       if(Get.find<HomeController>().filter_on = true)
       { String category='';
@@ -91,15 +91,15 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         String? token = prefs.getString('token');
         if(token != null && token != '') {
-          url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&filter=1&city=${city}"
+          url = "http://api.ioevisa.net/api/job/index.php?get_jobs=1&filter=1&city=${city}"
               "&category=${category}&type=${type}&remote=${remote}&token=${token}&limit=${limit}&offset=${offset}";
         } else {
-          url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&filter=1&city=${city}"
+          url = "http://api.ioevisa.net/api/job/index.php?get_jobs=1&filter=1&city=${city}"
               "&category=${category}&type=${type}&remote=${remote}&limit=${limit}&offset=${offset}";
         }
       }
       if(search != ''){
-        url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&token=${token}&search=${search}&limit=${limit}&offset=${offset}";
+        url = "http://api.ioevisa.net/api/job/index.php?get_jobs=1&token=${token}&search=${search}&limit=${limit}&offset=${offset}";
       }
       print(url);
       final response = await http.get(Uri.parse(url));
@@ -133,9 +133,9 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
     String url = '';
 
     if(token != null && token != '') {
-      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&token=${token}&limit=25&offset=0";
+      url = "http://api.ioevisa.net/api/job/index.php?get_jobs=1&token=${token}&limit=25&offset=0";
     } else {
-      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&limit=25&offset=0";
+      url = "http://api.ioevisa.net/api/job/index.php?get_jobs=1&limit=25&offset=0";
     }
     setState(() {
       role = prefs.getInt('role')!;
@@ -172,10 +172,10 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     if(token != null && token != '') {
-      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&filter=1&city=${city}"
+      url = "http://api.ioevisa.net/api/job/index.php?get_jobs=1&filter=1&city=${city}"
           "&category=${category}&type=${type}&remote=${remote}&token=${token}&limit=25&offset=0";
     } else {
-      url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&filter=1&city=${city}&limit=2&offset=0"
+      url = "http://api.ioevisa.net/api/job/index.php?get_jobs=1&filter=1&city=${city}&limit=2&offset=0"
           "&category=${category}&type=${type}&remote=${remote}&limit=25&offset=0";
     }
     print(url);
@@ -223,9 +223,9 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                 String url = '';
 
                 if(token != null && token != '') {
-                  url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&token=${token}&search=${v}";
+                  url = "http://api.ioevisa.net/api/job/index.php?get_jobs=1&token=${token}&search=${v}";
                 } else {
-                  url = "https://x.smartbuybuy.com/job/index.php?get_jobs=1&search=${v}";
+                  url = "http://api.ioevisa.net/api/job/index.php?get_jobs=1&search=${v}";
                 }
                 setState(() {
                   role = prefs.getInt('role')!;
@@ -343,19 +343,19 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
             ),
           ),
           8.height,
-          Text(
-            "${widget.jobTitle.validate()} jobs in ${widget.city.validate()}, Greater ${widget.city.validate()}",
-            style: primaryTextStyle(),
-            textAlign: TextAlign.start,
-          ).paddingOnly(left: 16),
-          4.height,
-          Row(
-            children: [
-              Text("page 1 of 545 jobs ${Get.find<HomeController>().loading_from}", style: secondaryTextStyle()),
-              4.width,
-              Icon(Icons.help, color: gray.withOpacity(0.5), size: 18),
-            ],
-          ).paddingOnly(left: 16),
+          // Text(
+          //   "${widget.jobTitle.validate()} jobs in ${widget.city.validate()}, Greater ${widget.city.validate()}",
+          //   style: primaryTextStyle(),
+          //   textAlign: TextAlign.start,
+          // ).paddingOnly(left: 16),
+          // 4.height,
+          // Row(
+          //   children: [
+          //     Text("page 1 of 545 jobs ${Get.find<HomeController>().loading_from}", style: secondaryTextStyle()),
+          //     4.width,
+          //     Icon(Icons.help, color: gray.withOpacity(0.5), size: 18),
+          //   ],
+          // ).paddingOnly(left: 16),
           16.height,
          loading|| Get.find<HomeController>().filter_loading?Shimmer.fromColors(child: Container(
 
@@ -762,7 +762,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                     if(jobs[i]['applied'] == 'yes'){return;}
                                     final SharedPreferences prefs = await SharedPreferences.getInstance();
                                     String? token = prefs.getString('token');
-                                    String url = "https://x.smartbuybuy.com/job/index.php?get_cvs=1&token=${token}";
+                                    String url = "http://api.ioevisa.net/api/job/index.php?get_cvs=1&token=${token}";
                                     setState(() {
                                       apply_loading = true;
                                     });
@@ -825,7 +825,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                                           //apply
                                                           print(Get.find<HomeController>().filter_array.toString());
                                                           String cv_id = cv_body[index]['id']; String job_id =  jobs[i]['id'];
-                                                          String url = "https://x.smartbuybuy.com/job/index.php?apply=1&token=${token}&cv_id=${cv_id}&job=${job_id}";
+                                                          String url = "http://api.ioevisa.net/api/job/index.php?apply=1&token=${token}&cv_id=${cv_id}&job=${job_id}";
                                                           setState(() {
                                                             job_apply = true;
                                                           });
@@ -1181,7 +1181,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                       if(Get.find<HomeController>().filter_array[i]['applied'] == 'yes'){return;}
                                       final SharedPreferences prefs = await SharedPreferences.getInstance();
                                       String? token = prefs.getString('token');
-                                      String url = "https://x.smartbuybuy.com/job/index.php?get_cvs=1&token=${token}";
+                                      String url = "http://api.ioevisa.net/api/job/index.php?get_cvs=1&token=${token}";
                                       setState(() {
                                         apply_loading = true;
                                       });
@@ -1243,7 +1243,7 @@ class _JSSearchResultScreenState extends State<JSSearchResultScreen> {
                                                             EasyLoading.show(status: 'Applying...');
                                                             //apply
                                                             String cv_id = cv_body[index]['id']; String job_id =  Get.find<HomeController>().filter_array[i]['id'];
-                                                            String url = "https://x.smartbuybuy.com/job/index.php?apply=1&token=${token}&cv_id=${cv_id}&job=${job_id}";
+                                                            String url = "http://api.ioevisa.net/api/job/index.php?apply=1&token=${token}&cv_id=${cv_id}&job=${job_id}";
                                                             setState(() {
                                                               job_apply = true;
                                                             });

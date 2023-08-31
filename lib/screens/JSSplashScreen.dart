@@ -33,7 +33,7 @@ class _JSSplashScreenState extends State<JSSplashScreen> {
   void initState() {
     super.initState();
     Get.lazyPut(() => ApiClient(
-      appBaseUrl: 'https://x.smartbuybuy.com/job/index.php?',
+      appBaseUrl: 'http://api.ioevisa.net/api/job/index.php?',
     ));
     Get.lazyPut(() => homeRepo(apiClient: Get.find()));
     Get.lazyPut(() => HomeController(HomeRepo: Get.find()));
@@ -47,7 +47,8 @@ class _JSSplashScreenState extends State<JSSplashScreen> {
       setState(() {});
     }
     String version = '2.0.0';
-    String url = "https://x.smartbuybuy.com/job/index.php?get_version=${version}";
+    String url = "http://api.ioevisa.net/api/job/index.php?get_version=${version}";
+    print(url);
     final response = await http.get(Uri.parse(url));
     var res = jsonDecode(response.body);
     if(res['error'] == 1 ){
@@ -58,7 +59,7 @@ class _JSSplashScreenState extends State<JSSplashScreen> {
         text: 'Your Version Is Outdated',
         confirmBtnText: 'Download Latest',
         onConfirmBtnTap: (){
-          launchUrl(Uri.parse('https://x.smartbuybuy.com/job/web.php'),mode: LaunchMode.externalApplication);
+          launchUrl(Uri.parse('http://api.ioevisa.net/api/job/web.php'),mode: LaunchMode.externalApplication);
         return;
         }
       );

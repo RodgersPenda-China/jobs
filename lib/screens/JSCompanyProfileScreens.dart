@@ -51,12 +51,12 @@ class _JSCompanyProfileScreensState extends State<JSCompanyProfileScreens> {
     if(widget.employer == 0) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
-       url = "https://x.smartbuybuy.com/job/index.php?get_company=1&id=${widget
+       url = "http://api.ioevisa.net/api/job/index.php?get_company=1&id=${widget
           .id}&token=${token}";
     } else {
        SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
-      url = "https://x.smartbuybuy.com/job/index.php?get_company=1&token=${token}";
+      url = "http://api.ioevisa.net/api/job/index.php?get_company=1&token=${token}";
       setState(() { role = prefs.getInt('role')!;});
     }
      SharedPreferences pref = await SharedPreferences.getInstance();
@@ -499,7 +499,7 @@ class _JSCompanyProfileScreensState extends State<JSCompanyProfileScreens> {
                                           if(jobs['job'][i]['applied'] == 'yes'){return;}
                                           final SharedPreferences prefs = await SharedPreferences.getInstance();
                                           String? token = prefs.getString('token');
-                                          String url = "https://x.smartbuybuy.com/job/index.php?get_cvs=1&token=${token}";
+                                          String url = "http://api.ioevisa.net/api/job/index.php?get_cvs=1&token=${token}";
                                           setState(() {
                                             apply_loading = true;
                                           });
@@ -562,7 +562,7 @@ class _JSCompanyProfileScreensState extends State<JSCompanyProfileScreens> {
                                                                 //apply
                                                                 print(Get.find<HomeController>().filter_array.toString());
                                                                 String cv_id = cv_body[index]['id']; String job_id =  jobs['job'][i]['id'];
-                                                                String url = "https://x.smartbuybuy.com/job/index.php?apply=1&token=${token}&cv_id=${cv_id}&job=${job_id}";
+                                                                String url = "http://api.ioevisa.net/api/job/index.php?apply=1&token=${token}&cv_id=${cv_id}&job=${job_id}";
                                                                 setState(() {
                                                                   job_apply = true;
                                                                 });

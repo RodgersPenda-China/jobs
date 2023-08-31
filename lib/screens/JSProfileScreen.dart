@@ -55,7 +55,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
   void init() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    String url = "https://x.smartbuybuy.com/job/index.php?get_user=1&token=${token}";
+    String url = "http://api.ioevisa.net/api/job/index.php?get_user=1&token=${token}";
     setState(() {
       Get.find<HomeController>().user_loading = true;
       Get.find<HomeController>().cv_loading = true;
@@ -71,7 +71,7 @@ class _JSProfileScreenState extends State<JSProfileScreen> {
     Get.find<HomeController>().edu = UsersModel.fromJson(_body).education;
     Get.find<HomeController>().user_loading = false;
      });
-    String uri = "https://x.smartbuybuy.com/job/index.php?get_cv=1&token=${token}";
+    String uri = "http://api.ioevisa.net/api/job/index.php?get_cv=1&token=${token}";
     Get.find<HomeController>().cv_loading = true;
     final res = await http.get(Uri.parse(uri));
     setState(() {

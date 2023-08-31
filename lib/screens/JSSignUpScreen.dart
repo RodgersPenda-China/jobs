@@ -94,9 +94,10 @@ class _JSSignUpScreenState extends State<JSSignUpScreen> {
                       height: textFieldHeight,
                       alignment: Alignment.center,
                       decoration: boxDecoration(radius: 8, color: appStore.isDarkModeOn ? scaffoldDarkColor : white),
-                      child: AppTextField(
+                      child: TextFormField(
+                        obscureText: true,
                         onChanged: (v){password = v;},
-                        textFieldType: TextFieldType.EMAIL,
+                     //   textFieldType: TextFieldType.EMAIL,
                         keyboardType: TextInputType.text,
                         decoration: jsInputDecoration(),
                       ),

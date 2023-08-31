@@ -37,7 +37,7 @@ class _JSFilteredScreenState extends State<JSFilteredScreen> {
   }
 
   void init() async {
-    String url = "https://x.smartbuybuy.com/job/index.php?get_categories=1";
+    String url = "http://api.ioevisa.net/api/job/index.php?get_categories=1";
     print(url);
     setState(() {
       category_loading = true;
@@ -60,7 +60,7 @@ class _JSFilteredScreenState extends State<JSFilteredScreen> {
     });
     print(category_array);
 
-    String iurl = "https://x.smartbuybuy.com/job/index.php?get_city=1";
+    String iurl = "http://api.ioevisa.net/api/job/index.php?get_city=1";
     print(url);
     setState(() {
       city_loading = true;
